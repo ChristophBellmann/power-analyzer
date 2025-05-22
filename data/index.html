@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Power Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin:0; font-family:sans-serif; background:#e0e0e0; }
+    #nav { background:#333; color:#fff; padding:8px; }
+    #nav a { color:#fff; margin:0 10px; text-decoration:none; }
+    #container { display:flex; flex-direction:column; height:calc(100vh - 40px); }
+    #scope, #harmonics { flex:1; display:none; position:relative; background:#000; }
+    canvas { display:block; width:100%; height:100%; }
+    #controls { position:absolute; top:10px; left:10px; background:rgba(255,255,255,0.8); padding:10px; border-radius:4px; }
+    #controls label { display:block; margin:5px 0 2px; font-size:12px; }
+    #controls input, #controls select { width:100%; margin-bottom:5px; }
+    #delay { position:absolute; bottom:5px; left:10px; color:#fff; font-size:12px; }
+    iframe { width:100%; height:100%; border:none; }
+  </style>
+</head>
+<body>
+  <div id="nav">
+    <a href="#" onclick="show('scope')">Scope</a>
+    <a href="#" onclick="show('harmonics')">Oberschwingungen</a>
+    <a href="/download">Download</a>
+  </div>
+  <div id="container">
+    <div id="scope">
+      <canvas id="osc"></canvas>
+      <div id="controls">
+        <label for="timeRes">Zeit-Bereich (ms): <span id="timeResVal">100</span></label>
+        <input type="range" id="timeRes" min="10" max="500" step="10" value="100">
+        <label for="voltRes">Vertikal-Res (V/div): <span id="voltResVal">1</span></label>
+        <input type="range" id="voltRes" min="0.1" max="5" step="0.1" value="1">
+        <label for="trigger">Trigger-Level (ADC): <span id="triggerVal">2048</span></label>
+        <input type="range" id="trigger" min="0" max="4095" step="1" value="2048">
+        <button id="armTrigger">Trigger armieren</button>
+      </div>
+      <div id="delay">Abtastung: <span id="frameRate">100</span> ms / Frame</div>
+    </div>
+    <div id="harmonics">
+      <iframe src="/fastdetect"></iframe>
+    </div>
+  </div>
+  <script>
+    // Navigation
+    function show(id){
+      document.getElementById('scope').style.display = id==='scope'?'block':'none';
+      document.getElementById('harmonics').style.display = id==='harmonics'?'block':'none';
+    }
+    show('scope');
+
+    // Canvas + Settings
+    const canvas = document.getElementById('osc'),
+          ctx = canvas.getContext('2d');
+    let width, height;
+    function resize(){ width=canvas.width=canvas.clientWidth; height=canvas.height=canvas.clientHeight; }
+    window.addEventListener('resize',resize);
+    resize();
+
+    // Controls
+    const timeRes = document.getElementById('timeRes'),
+          voltRes = document.getElementById('voltRes'),
+          trigger = document.getElementById('trigger'),
+          armBtn  = document.getElementById('armTrigger');
+    const timeResVal = document.getElementById('timeResVal'),
+          voltResVal = document.getElementById('voltResVal'),
+          triggerVal = document.getElementById('triggerVal'),
+          frameRate  = document.getElementById('frameRate');
+    let armed=false;
+    timeRes.oninput = ()=> timeResVal.textContent=timeRes.value;
+    voltRes.oninput = ()=> voltResVal.textContent=voltRes.value;
+    trigger.oninput = ()=> triggerVal.textContent=trigger.value;
+    armBtn.onclick = ()=>{ armed=true; armBtn.textContent=armed?'🔴 Armed':'Trigger armieren'; };
+
+    // Grid zeichnen
+    function drawGrid(){
+      ctx.strokeStyle='rgba(0,255,0,0.2)'; ctx.lineWidth=1;
+      const hDiv=10, vDiv=8, dx=width/hDiv, dy=height/vDiv;
+      for(let i=0;i<=hDiv;i++){
+        const x=i*dx;
+        ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke();
+      }
+      for(let j=0;j<=vDiv;j++){
+        const y=j*dy;
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke();
+      }
+      ctx.fillStyle='#0f0'; ctx.font='12px monospace';
+      for(let i=0;i<=hDiv;i++){
+        const t = ((-timeRes.value)*(i/hDiv)).toFixed(1);
+        ctx.fillText(t+'ms', i*dx+2, height-5);
+      }
+      for(let j=0;j<=vDiv;j++){
+        const v = ((vDiv/2-j)*(voltRes.value)).toFixed(2);
+        ctx.fillText(v+'V', 5, j*dy-2);
+      }
+    }
+
+    // WebSocket Scope
+    let ws = new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/ws_scope');
+    ws.onopen = ()=> console.log('Scope WS open');
+    ws.onmessage = evt => {
+      const {voltage,current} = JSON.parse(evt.data);
+      renderScope(voltage,current);
+    };
+
+    function renderScope(v,c){
+      ctx.clearRect(0,0,width,height);
+      drawGrid();
+      // Trigger
+      if(armed){
+        const thr = parseInt(trigger.value);
+        let idx = v.findIndex(val=>val>thr);
+        if(idx<0) return; // no trigger yet
+        // rotate arrays
+        const v2 = v.slice(idx).concat(v.slice(0,idx));
+        const c2 = c.slice(idx).concat(c.slice(0,idx));
+        v.splice(0,v.length,...v2); c.splice(0,c.length,...c2);
+        armed=false;
+        armBtn.textContent='Trigger armieren';
+      }
+      // Draw waveforms
+      const pts = v.length;
+      const xStep = width/pts;
+      // Voltage = Gelb
+      ctx.beginPath(); ctx.strokeStyle='yellow'; ctx.lineWidth=1;
+      v.forEach((val,i)=>{
+        const y = height/2 - ((val-2048)/2048)*(height/2)*(1/voltRes.value);
+        i?ctx.lineTo(i*xStep,y):ctx.moveTo(i*xStep,y);
+      });
+      ctx.stroke();
+      // Current = Grün
+      ctx.beginPath(); ctx.strokeStyle='lime'; ctx.lineWidth=1;
+      c.forEach((val,i)=>{
+        const y = height/2 - ((val-2048)/2048)*(height/2)*(1/voltRes.value);
+        i?ctx.lineTo(i*xStep,y):ctx.moveTo(i*xStep,y);
+      });
+      ctx.stroke();
+    }
+
+    // Frame-Rate Anzeige
+    setInterval(()=> frameRate.textContent=timeRes.value+' ms / Frame',500);
+  </script>
+</body>
+</html>

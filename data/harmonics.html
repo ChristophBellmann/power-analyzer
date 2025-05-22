@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Oberschwingungen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Grundlayout */
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #e0e0e0;
+      color: #000;
+      text-align: center;
+    }
+    header {
+      background: #fff;
+      padding: 10px;
+      font-size: 24px;
+      font-weight: bold;
+      border-bottom: 2px solid #333;
+    }
+    /* THD-Banner */
+    #thd {
+      background: #d00;
+      color: #fff;
+      font-weight: bold;
+      padding: 5px 10px;
+      display: inline-block;
+      margin-top: 5px;
+      border-radius: 4px;
+    }
+    /* Chart-Container */
+    #chart {
+      position: relative;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 800px;
+      height: 400px;
+      background: #fff;
+      border: 2px solid #333;
+    }
+    /* horizontale Hilfslinien bei 100% und 50% */
+    #chart::before,
+    #chart::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      border-top: 1px dotted #333;
+    }
+    #chart::before { top: 0; }       /* 100% */
+    #chart::after  { top: 50%; }     /* 50% */
+    /* Y-Achse-Beschriftungen */
+    .y-label {
+      position: absolute;
+      left: -40px;
+      transform: translateY(-50%);
+      font-size: 12px;
+    }
+    .y-label.top    { top: 0;    }  /* 100% */
+    .y-label.middle { top: 50%; }  /* 50% */
+    .y-label.bottom { top: 100%; } /*   0% */
+    /* Bars-Container */
+    #bars {
+      position: absolute;
+      bottom: 0; left: 0; right: 0; top: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      padding: 10px 40px 30px;
+      box-sizing: border-box;
+    }
+    .bar {
+      width: 30px;
+      background: #d00;
+      transition: height 0.3s;
+    }
+    .bar.dc    { background: #555; } /* DC-Balken grau */
+    .bar.thd   { background: #090; } /* THD-Balken grün */
+    .bar:nth-child(n+3):nth-child(odd)  { background: #d00; } /* ungerade Harmonische */
+    .bar:nth-child(n+3):nth-child(even) { background: #a00; } /* gerade Harmonische */
+    /* X-Achse-Beschriftungen */
+    #x-axis {
+      position: absolute;
+      bottom: 5px;
+      left: 40px; right: 40px;
+      display: flex;
+      justify-content: space-around;
+    }
+    #x-axis div {
+      font-size: 12px;
+      width: 30px;
+      text-align: center;
+      transform: translateX(-15px);
+    }
+    /* Footer mit Messdaten */
+    footer {
+      background: #fff;
+      padding: 10px;
+      border-top: 2px solid #333;
+      font-size: 14px;
+    }
+    /* Navigation-Buttons */
+    .nav {
+      margin-top: 10px;
+    }
+    .nav button {
+      margin: 0 5px;
+      padding: 8px 12px;
+      font-size: 14px;
+      background: #007bff;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .nav button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Oberschwingungen &nbsp; <span id="thd">THD 27.7%</span></header>
+
+  <div id="chart">
+    <div class="y-label top">100%</div>
+    <div class="y-label middle">50%</div>
+    <div class="y-label bottom">0%</div>
+    <div id="bars"></div>
+    <div id="x-axis"></div>
+  </div>
+
+  <footer>
+    <div>23/04/07 08:51:27 &nbsp;&nbsp; 230V 50Hz 3Ø WYE &nbsp;&nbsp; EN50160</div>
+    <div class="nav">
+      <button>PREV</button>
+      <button>BACK</button>
+      <button>NEXT</button>
+      <button>SAVE</button>
+      <button>SHARE</button>
+    </div>
+  </footer>
+
+  <script>
+    // Beispiel-Daten: DC, THD, dann 1., 3., 5., ...
+    const harmonics = {
+      dc:  5,    // DC-Komponente in %
+      thd: 27.7, // Gesamt-THD in %
+      data: [100, 10, 50, 5, 20, 0, 5, 0, 2, 0, 1, 0, 0]
+    };
+
+    const barsContainer = document.getElementById('bars');
+    const xAxis = document.getElementById('x-axis');
+    const maxDisplay = 100; // 100%
+
+    // Hilfsfunktion zum Erstellen eines Balkens
+    function addBar(value, cls) {
+      const bar = document.createElement('div');
+      bar.className = 'bar ' + cls;
+      const h = Math.min(value / maxDisplay * 100, 100);
+      bar.style.height = h + '%';
+      barsContainer.appendChild(bar);
+    }
+    // Hilfsfunktion für X-Label
+    function addXLabel(text) {
+      const lbl = document.createElement('div');
+      lbl.textContent = text;
+      xAxis.appendChild(lbl);
+    }
+
+    // 1) DC-Balken
+    addBar(harmonics.dc, 'dc');
+    addXLabel('DC');
+
+    // 2) THD-Balken
+    addBar(harmonics.thd, 'thd');
+    addXLabel('THD');
+
+    // 3) Harmonische 1,3,5,...
+    harmonics.data.forEach((val, i) => {
+      addBar(val, '');
+      addXLabel((2*i+1).toString());
+    });
+  </script>
+
+</body>
+</html>
