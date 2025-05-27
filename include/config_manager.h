@@ -1,28 +1,39 @@
-#pragma once
+// include/config_manager.h
+#ifndef CONFIG_MANAGER_H
+#define CONFIG_MANAGER_H
+
 #include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** Lädt `/spiffs/config.yaml` oder verwendet Defaults. */
-esp_err_t config_manager_load(void);
+/** Pfad zur Konfigurationsdatei auf SPIFFS */
+#define CONFIG_FILE_PATH   "/spiffs/config.yaml"
 
-/** Speichert aktuelle Einstellungen nach `/spiffs/config.yaml`. */
-esp_err_t config_manager_save(void);
+/** Getter / Setter für Anzeige-Parameter */
+uint16_t config_get_trace_width(void);
+void     config_set_trace_width(uint16_t w);
 
-// Getter
-int         config_get_trace_width(void);
-int         config_get_grid_width(void);
+uint16_t config_get_grid_width(void);
+void     config_set_grid_width(uint16_t w);
+
 const char* config_get_trace_v_color(void);
-const char* config_get_trace_i_color(void);
+void        config_set_trace_v_color(const char* c);
 
-// Setter
-void config_set_trace_width(int w);
-void config_set_grid_width(int w);
-void config_set_trace_v_color(const char *hex);
-void config_set_trace_i_color(const char *hex);
+const char* config_get_trace_i_color(void);
+void        config_set_trace_i_color(const char* c);
+
+/** Theme 1 oder 2 */
+int  config_get_theme(void);
+void config_set_theme(int theme);
+
+/** Dateien laden / speichern */
+esp_err_t config_manager_load(void);
+esp_err_t config_manager_save(void);
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // CONFIG_MANAGER_H

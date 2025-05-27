@@ -50,6 +50,7 @@ void app_main(void)
     /* -------- Peripherie + Server -------------------------------- */
     configure_adc_continuous(ADC_MODE_SINGLE);  // ADC+DMA konfigurieren
     recorder_init();                            // interne Puffer initialisieren
+    config_manager_load();
     webserver_start();                          // HTTP/WebSocket-Server
 
     /* -------- ADC-Task starten ---------------------------------- */
