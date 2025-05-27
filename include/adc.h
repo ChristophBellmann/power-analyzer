@@ -1,25 +1,28 @@
 #pragma once
 #include <stdint.h>
+#include "config.h"                     /* FFT_SIZE, SAMPLE_RATE … */
+#include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Betriebsmodi ------------------------------------------------------- */
+/* ---------- Betriebs-/Aufzeichnungs­modi ------------------------- */
 typedef enum {
-    ADC_MODE_SINGLE = 0,          /* Alias: Einzel-/DC-Messung  */
-    ADC_MODE_DC     = ADC_MODE_SINGLE,
-    ADC_MODE_AC,
-    ADC_MODE_HARMONICS
+    ADC_MODE_SINGLE = 0,     /* nur CH-0                                       */
+    ADC_MODE_INTERLEAVED     /* CH-0 + CH-1  (gleiche Sample-Rate pro Kanal)   */
 } adc_mode_t;
 
-/* Getter / Setter ---------------------------------------------------- */
-adc_mode_t adc_get_mode(void);
-void       adc_change_mode(adc_mode_t new_mode);
+/* ---------- Öffentliche API -------------------------------------- */
+adc_mode_t       adc_get_mode(void);
+void             adc_change_mode(adc_mode_t new_mode);
 
-/* Kontinuierlicher DMA-Betrieb -------------------------------------- */
-void configure_adc_continuous(adc_mode_t mode);
-void collect_adc_continuous_data(void *arg);   /* FreeRTOS-Task */
+esp_err_t        configure_adc_continuous(adc_mode_t mode);
+void             collect_adc_continuous_data(void *arg);
+
+/* ---------- Weitergabe des Treiber-Handles (optional) ------------ */
+#include "esp_adc/adc_continuous.h"
+extern adc_continuous_handle_t adc_handle;
 
 #ifdef __cplusplus
 }

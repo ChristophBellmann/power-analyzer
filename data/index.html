@@ -3,96 +3,200 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Power‑Analaaaayzer</title>
+  <title>Power-Analyzer</title>
   <style>
-    :root{
-      --bg-nav:#262626;
+    :root {
+      --bg-nav: #262626;
       --bg-page:#000;
       --bg-card:#d3d3d3;
       --fg-nav:#fff;
       --accent:#40c0d0;
-      --grid:#0f0;
-      --trace-v:#ffeb3b;
-      --trace-i:#00bcd4;
     }
-    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,Segoe UI,Roboto,sans-serif;color:var(--fg-nav);}
-    body{background:var(--bg-page);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-    /* ───────────── NAVBAR ───────────── */
-    nav{background:var(--bg-nav);display:flex;gap:1rem;padding:.4rem 1rem;user-select:none;}
-    nav a{color:var(--fg-nav);text-decoration:none;font-size:1rem;padding:.3rem .6rem;border-radius:4px;cursor:pointer;transition:background .2s;}
-    nav a:hover{background:#444;}
-    nav a.active{background:var(--accent);color:#000;}
-    /* ───────────── PAGES ───────────── */
-    .page{flex:1;display:none;position:relative;}
-    .page.active{display:flex;}
-    /* ─── Scope Layout ─── */
-    #scope{flex-direction:column;}
-    #scope canvas{flex:1;width:100%;background:#000;display:block;}
-    .card{position:absolute;top:1.2rem;left:1.2rem;width:280px;background:var(--bg-card);padding:1rem;border-radius:4px;color:#000;box-shadow:0 2px 6px rgba(0,0,0,.5);}
-    .card label{display:block;font-size:.85rem;margin-top:.6rem;margin-bottom:.2rem;}
-    .card input[type=range]{width:100%;accent-color:var(--accent);} 
-    .card button{margin-top:1rem;padding:.3rem .7rem;border:none;background:var(--accent);color:#000;border-radius:4px;font-weight:600;cursor:pointer;}
-    .card button:hover{filter:brightness(1.1);} 
-    #statusBar{background:rgba(0,0,0,.7);padding:.4rem .6rem;font-size:.8rem;}
-    /* Placeholder centers */
-    .placeholder{margin:auto;text-align:center;width:100%;color:#888;font-size:1.1rem;}
+    * { box-sizing:border-box; margin:0; padding:0; font-family:system-ui,Segoe UI,Roboto,sans-serif; color:var(--fg-nav); }
+    body { background:var(--bg-page); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+    nav { background:var(--bg-nav); display:flex; gap:1rem; padding:.4rem 1rem; }
+    nav a { color:var(--fg-nav); text-decoration:none; padding:.3rem .6rem; border-radius:4px; cursor:pointer; }
+    nav a.active { background:var(--accent); color:#000; }
+    .page { flex:1; display:none; position:relative; }
+    .page.active { display:flex; }
+    /* Scope */
+    #scope { flex-direction:column; }
+    #scope canvas { flex:1; width:100%; background:#000; display:block; }
+    .card { position:absolute; top:1.2rem; left:1.2rem; width:280px; background:var(--bg-card); padding:1rem; border-radius:4px; color:#000; box-shadow:0 2px 6px rgba(0,0,0,.5); }
+    .card label { display:block; margin: .5rem 0; font-size:.9rem; }
+    .card input[type=range], .card input[type=number], .card input[type=color] { width:100%; margin-top:.2rem; }
+    .card button { margin-top:1rem; padding:.4rem .8rem; border:none; background:var(--accent); color:#000; border-radius:4px; cursor:pointer; }
+    #statusBar { background:rgba(0,0,0,.7); padding:.4rem .6rem; font-size:.8rem; }
   </style>
 </head>
 <body>
+
   <nav>
     <a data-target="scope" class="active">Scope</a>
     <a data-target="harmonics">Harmonics</a>
     <a data-target="ota">OTA</a>
     <a data-target="config">Config</a>
   </nav>
-  <!-- ───────────────── Scope Page ───────────────── -->
+
+  <!-- Scope Page -->
   <section id="scope" class="page active">
     <canvas id="oscCanvas"></canvas>
-    <div class="card" id="scopeControls">
-      <label>Zeit‑Bereich (ms): <span id="timeVal">100</span></label>
-      <input type="range" min="10" max="500" value="100" id="timeRange">
-      <label>Vertikal-Res (V/div): <span id="vDivVal">1</span></label>
-      <input type="range" min="0.1" max="10" step="0.1" value="1" id="vDivRange">
-      <label>Trigger‑Level (ADC): <span id="trigVal">2048</span></label>
-      <input type="range" min="0" max="4095" value="2048" id="trigRange">
+    <div class="card">
+      <label>Zeit-Bereich (ms): <input type="range" id="timeRange" min="10" max="500" value="100"><span id="timeVal">100</span></label>
+      <label>Vertikal-Res (V/div): <input type="range" id="vDivRange" min="0.1" max="10" step="0.1" value="1"><span id="vDivVal">1</span></label>
+      <label>Trigger-Level (ADC): <input type="range" id="trigRange" min="0" max="4095" value="2048"><span id="trigVal">2048</span></label>
       <button id="trigBtn">Trigger armieren</button>
     </div>
     <div id="statusBar">Abtastung: 100 ms / Frame</div>
   </section>
-  <!-- ───────────────── Harmonics Page ───────────────── -->
-  <section id="harmonics" class="page">
-    <iframe src="/harmonics.html" class="placeholder" style="border:none;flex:1;"></iframe>
-  </section>
-  <!-- ───────────────── OTA Page ───────────────── -->
-  <section id="ota" class="page">
-    <div class="placeholder">OTA‑Update‑Seite (in Arbeit)</div>
-  </section>
-  <!-- ───────────────── Config Page ───────────────── -->
-  <section id="config" class="page">
-    <div class="placeholder">Konfigurations‑Seite (in Arbeit)</div>
-  </section>
-  <script>
-    /* ---------- Navigation Handling ---------- */
-    const navLinks = document.querySelectorAll('nav a');
-    navLinks.forEach(link=>link.addEventListener('click',()=>{
-      document.querySelector('nav a.active').classList.remove('active');
-      link.classList.add('active');
-      document.querySelector('.page.active').classList.remove('active');
-      document.getElementById(link.dataset.target).classList.add('active');
-    }));
 
-    /* ---------- Control Panel Text‑Updates ---------- */
-    const timeRange=document.getElementById('timeRange');
-    const vDivRange=document.getElementById('vDivRange');
-    const trigRange=document.getElementById('trigRange');
-    const timeVal=document.getElementById('timeVal');
-    const vDivVal=document.getElementById('vDivVal');
-    const trigVal=document.getElementById('trigVal');
-    [timeRange,vDivRange,trigRange].forEach(inp=>inp.addEventListener('input',()=>{
-      timeVal.textContent=timeRange.value;
-      vDivVal.textContent=vDivRange.value;
-      trigVal.textContent=trigRange.value;
-    }));
+  <!-- Harmonics Page -->
+  <section id="harmonics" class="page">
+    <iframe src="/spiffs/harmonics.html" style="flex:1; border:none;"></iframe>
+  </section>
+
+  <!-- OTA Page -->
+  <section id="ota" class="page">
+    <div style="margin:auto;color:#888;">OTA-Update-Seite (in Arbeit)</div>
+  </section>
+
+  <!-- Config Page -->
+  <section id="config" class="page">
+    <div class="card" style="width:320px;">
+      <h3>Konfiguration</h3>
+      <label>Spurbreite (px): <input type="number" id="cfgTraceWidth" min="1" max="100"></label>
+      <label>Gitterbreite (px): <input type="number" id="cfgGridWidth" min="1" max="100"></label>
+      <label>Farbe Spannung: <input type="color" id="cfgTraceVColor"></label>
+      <label>Farbe Strom: <input type="color" id="cfgTraceIColor"></label>
+      <button id="saveConfig">Speichern</button>
+      <div id="cfgMsg" style="margin-top:.5rem;color:green;"></div>
+    </div>
+  </section>
+
+  <script>
+    // Navigation
+    document.querySelectorAll('nav a').forEach(a=>{
+      a.addEventListener('click',()=>{
+        document.querySelector('nav a.active').classList.remove('active');
+        a.classList.add('active');
+        document.querySelector('.page.active').classList.remove('active');
+        document.getElementById(a.dataset.target).classList.add('active');
+        if(a.dataset.target==='config') loadConfig();
+      });
+    });
+
+    // Scope controls text updates
+    const timeRange = document.getElementById('timeRange'),
+          vDivRange = document.getElementById('vDivRange'),
+          trigRange = document.getElementById('trigRange');
+    const timeVal = document.getElementById('timeVal'),
+          vDivVal = document.getElementById('vDivVal'),
+          trigVal = document.getElementById('trigVal');
+    [timeRange,vDivRange,trigRange].forEach(inp=>{
+      inp.addEventListener('input',()=>{
+        timeVal.textContent = timeRange.value;
+        vDivVal.textContent = vDivRange.value;
+        trigVal.textContent = trigRange.value;
+      });
+    });
+    document.getElementById('trigBtn').addEventListener('click',()=>{
+      // Trigger-Arm-Logik …
+    });
+
+    // Canvas + WebSocket + Rendering
+    const cvs = document.getElementById('oscCanvas'),
+          ctx = cvs.getContext('2d');
+    let cfg = { traceWidth:2, gridWidth:1, traceVColor:'#ffeb3b', traceIColor:'#00bcd4' };
+    function resize(){ cvs.width=cvs.clientWidth; cvs.height=cvs.clientHeight; }
+    window.addEventListener('resize', resize); resize();
+
+    function drawGrid(){
+      const w=cvs.width, h=cvs.height;
+      ctx.lineWidth = cfg.gridWidth;
+      ctx.strokeStyle = cfg.traceVColor.replace(/..$/,'33'); // halbtransparent
+      const cols=10, rows=8, dx=w/cols, dy=h/rows;
+      for(let i=0;i<=cols;i++){
+        ctx.beginPath(); ctx.moveTo(i*dx,0); ctx.lineTo(i*dx,h); ctx.stroke();
+      }
+      for(let j=0;j<=rows;j++){
+        ctx.beginPath(); ctx.moveTo(0,j*dy); ctx.lineTo(w,j*dy); ctx.stroke();
+      }
+    }
+
+    const ws = new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/ws_scope');
+    ws.onmessage = e=>{
+      const {voltage, current} = JSON.parse(e.data);
+      renderScope(voltage, current);
+    };
+
+    function renderScope(v, c){
+      ctx.clearRect(0,0,cvs.width,cvs.height);
+      drawGrid();
+      const w=cvs.width, h=cvs.height, step=w/v.length;
+      // Spannung
+      ctx.lineWidth = cfg.traceWidth;
+      ctx.strokeStyle = cfg.traceVColor;
+      ctx.beginPath();
+      v.forEach((val,i)=>{
+        const y = h/2 - ((val-2048)/2048)*(h/2)*(1/parseFloat(vDivRange.value));
+        i? ctx.lineTo(i*step,y) : ctx.moveTo(0,y);
+      });
+      ctx.stroke();
+      // Strom
+      ctx.strokeStyle = cfg.traceIColor;
+      ctx.beginPath();
+      c.forEach((val,i)=>{
+        const y = h/2 - ((val-2048)/2048)*(h/2)*(1/parseFloat(vDivRange.value));
+        i? ctx.lineTo(i*step,y) : ctx.moveTo(0,y);
+      });
+      ctx.stroke();
+    }
+
+    // --- Config-Handling ---
+    const inTW = document.getElementById('cfgTraceWidth'),
+          inGW = document.getElementById('cfgGridWidth'),
+          inVC = document.getElementById('cfgTraceVColor'),
+          inIC = document.getElementById('cfgTraceIColor'),
+          btnSave = document.getElementById('saveConfig'),
+          msg     = document.getElementById('cfgMsg');
+
+    function loadConfig(){
+      fetch('/api/config').then(r=>r.text()).then(txt=>{
+        txt.split('\n').forEach(l=>{
+          let [k,v] = l.split(':').map(s=>s.trim());
+          if (k==='trace_width')      inTW.value = cfg.traceWidth = parseInt(v);
+          if (k==='grid_width')       inGW.value = cfg.gridWidth = parseInt(v);
+          if (k==='trace_v_color')    inVC.value = cfg.traceVColor = v;
+          if (k==='trace_i_color')    inIC.value = cfg.traceIColor = v;
+        });
+      });
+    }
+
+    btnSave.addEventListener('click',()=>{
+      const yaml =
+        `trace_width: ${inTW.value}\n` +
+        `grid_width: ${inGW.value}\n`+
+        `trace_v_color: ${inVC.value}\n`+
+        `trace_i_color: ${inIC.value}\n`;
+      fetch('/api/config', {
+        method:'POST',
+        headers: {'Content-Type':'text/plain'},
+        body: yaml
+      }).then(r=>{
+        if(r.ok){
+          cfg.traceWidth  = parseInt(inTW.value);
+          cfg.gridWidth   = parseInt(inGW.value);
+          cfg.traceVColor = inVC.value;
+          cfg.traceIColor = inIC.value;
+          msg.textContent = 'Gespeichert!';
+          setTimeout(()=> msg.textContent='', 2000);
+        }
+      });
+    });
+
+    // lade beim Start
+    loadConfig();
   </script>
+
 </body>
 </html>

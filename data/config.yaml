@@ -1,0 +1,7 @@
+# trace/grid width in Pixel
+trace_width: 3
+grid_width: 1
+
+# Farben als CSS-Hex
+trace_v_color: "#ffeb3b"
+trace_i_color: "#00bcd4"

@@ -148,9 +148,13 @@ static void compute_harmonics_json(char *outbuf, size_t outsize)
 esp_err_t harmonics_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "HTTP /harmonics");
-    char json[2048];
-    compute_harmonics_json(json, sizeof(json));
-    return send_json(req, json, strlen(json));
+    /* dynamisch, damit der httpd-Stack klein bleiben kann */
+    char *json = malloc(2048);
+    if (!json) return httpd_resp_send_500(req);
+    compute_harmonics_json(json, 2048);
+    esp_err_t ret = send_json(req, json, strlen(json));
+    free(json);
+    return ret;
 }
 
 /* ------------------------------------------------------------------ */
@@ -158,8 +162,9 @@ esp_err_t harmonics_handler(httpd_req_t *req)
 /* ------------------------------------------------------------------ */
 esp_err_t ws_harmonics_handler(httpd_req_t *req)
 {
-    char json[2048];
-    compute_harmonics_json(json, sizeof(json));
+    char *json = malloc(2048);
+    if (!json) return ESP_ERR_NO_MEM;
+    compute_harmonics_json(json, 2048);
 
 // WS-Handler – letzte Zeilen ersetzen
     httpd_ws_frame_t frame = {
@@ -169,5 +174,7 @@ esp_err_t ws_harmonics_handler(httpd_req_t *req)
         .payload = (uint8_t *)json,
         .len     = strlen(json)
     };
-    return httpd_ws_send_frame(req, &frame);
+    esp_err_t ret = httpd_ws_send_frame(req, &frame);
+    free(json);
+    return ret;
 }

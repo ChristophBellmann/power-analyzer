@@ -25,4 +25,12 @@
 #define WIFI_SSID_2   "Pixel_cb"
 #define WIFI_PASS_2   "pixelpass"
 
+/* -------------------------------------------------------------------
+ * UI-Defaults für Trace- und Grid-Darstellung (in Pixel / CSS-Hex) 
+ * ------------------------------------------------------------------- */
+#define UI_TRACE_WIDTH_PX        4
+#define UI_GRID_LINE_WIDTH_PX    1
+#define UI_TRACE_COLOR_VOLTAGE   "#ffeb3b"
+#define UI_TRACE_COLOR_CURRENT   "#00bcd4"
+
 #endif /* CONFIG_H */

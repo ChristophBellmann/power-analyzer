@@ -166,3 +166,45 @@ with open('data.bin','rb') as f:
 ```
 
 
+## „ADC DMA“ steht für **Analog-Digital-Wandler mit Direct Memory Access.** In kurz:
+
+1. ADC (Analog-Digital-Wandler)  
+
+    Er wandelt kontinuierlich oder einmalig eine analoge Spannung in digitale Samples um (z. B. 0…4095 für eine 12-Bit-Auflösung).
+
+2. DMA (Direct Memory Access)
+    Ein Hardware-Controller, der Daten zwischen Peripherie und RAM überträgt, ohne den Hauptprozessor (CPU) für jeden einzelnen Wert zu beschäftigen.
+
+### Warum ADC + DMA?
+
+*   Hohe Abtastraten  
+
+    Mit DMA kann der ADC Datenpakete (Frames) mit sehr hoher Geschwindigkeit in RAM schreiben (z. B. 200 kS/s), ohne dass die CPU bei jedem Sample eingreifen muss.
+
+*     CPU-Entlastung  
+
+    Die CPU wird entlastet und kann sich um FFT-Berechnungen, Web-Server-Tasks oder andere Anwendungen kümmern, während der DMA die Daten im Hintergrund puffert.
+
+*    Ringpuffer / Blockweise Verarbeitung  
+
+    Typischerweise konfiguriert man den DMA so, dass er immer eine bestimmte Frame-Größe (z. B. 1024 Samples) in einen Ring- oder Ping-Pong-Puffer schreibt. Wenn ein Frame voll ist, wird per Interrupt oder Task-Benachrichtigung signalisiert: „Puffer ist voll – hier stehen die nächsten 1024 Samples bereit.“
+
+### Typischer Ablauf auf einem ESP32
+
+1. Konfiguration
+
+* Im adc_continuous_config_t gibt man an, mit welcher Abtastrate gearbeitet werden soll und ob Single-Channel oder Interleaved-Modus (zwei Kanäle) benutzt wird.
+
+* Im DMA-Handle (adc_continuous_handle_t) legt man fest, wie groß der Puffer sein soll.
+
+2. Starten
+
+* adc_continuous_start(adc_handle) aktiviert ADC + DMA.
+
+* Der DMA-Controller beginnt, ADC-Daten in den Puffer zu schreiben.
+
+3. Lesen
+
+* Per adc_continuous_read(...) holt man blockweise alle neuen Samples aus dem DMA-Puffer.
+
+* Danach können die Daten (z. B. Spannung und Strom) in einem FFT-Task ausgewertet oder über WebSocket verschickt werden.
