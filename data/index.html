@@ -2,174 +2,97 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>ESP-32 Oszilloskop & Power-Analyzer</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Power‑Analaaaayzer</title>
   <style>
-    /* ---------- Layout --------------------------------------------------- */
-    body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#e0e0e0}
-    #nav{background:#333;color:#fff;padding:8px 12px}
-    #nav a{color:#fff;text-decoration:none;margin-right:14px;font-weight:bold}
-    #container{display:flex;flex-direction:column;height:calc(100vh - 42px)}
-    #scope,#harmonics{flex:1;display:none;position:relative;background:#000}
-    canvas{display:block;width:100%;height:100%}
-    iframe{border:0;width:100%;height:100%}
-
-    /* ---------- Steuerbox ------------------------------------------------- */
-    #controls{position:absolute;top:12px;left:12px;background:#fffdfdee;
-              padding:10px 12px;border-radius:6px;font-size:13px}
-    #controls label{display:block;margin:6px 0 2px;font-weight:500}
-    #controls input[type=range]{width:210px}
-    #controls button{margin-top:6px;padding:4px 10px;cursor:pointer}
-    #delay{position:absolute;bottom:6px;left:12px;color:#0f0;font-size:12px;
-           font-family:monospace}
-
-    /* ---------- Canvas-Raster-Farbe -------------------------------------- */
-    .grid {stroke:rgba(0,255,0,.25);stroke-width:1}
+    :root{
+      --bg-nav:#262626;
+      --bg-page:#000;
+      --bg-card:#d3d3d3;
+      --fg-nav:#fff;
+      --accent:#40c0d0;
+      --grid:#0f0;
+      --trace-v:#ffeb3b;
+      --trace-i:#00bcd4;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,Segoe UI,Roboto,sans-serif;color:var(--fg-nav);}
+    body{background:var(--bg-page);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+    /* ───────────── NAVBAR ───────────── */
+    nav{background:var(--bg-nav);display:flex;gap:1rem;padding:.4rem 1rem;user-select:none;}
+    nav a{color:var(--fg-nav);text-decoration:none;font-size:1rem;padding:.3rem .6rem;border-radius:4px;cursor:pointer;transition:background .2s;}
+    nav a:hover{background:#444;}
+    nav a.active{background:var(--accent);color:#000;}
+    /* ───────────── PAGES ───────────── */
+    .page{flex:1;display:none;position:relative;}
+    .page.active{display:flex;}
+    /* ─── Scope Layout ─── */
+    #scope{flex-direction:column;}
+    #scope canvas{flex:1;width:100%;background:#000;display:block;}
+    .card{position:absolute;top:1.2rem;left:1.2rem;width:280px;background:var(--bg-card);padding:1rem;border-radius:4px;color:#000;box-shadow:0 2px 6px rgba(0,0,0,.5);}
+    .card label{display:block;font-size:.85rem;margin-top:.6rem;margin-bottom:.2rem;}
+    .card input[type=range]{width:100%;accent-color:var(--accent);} 
+    .card button{margin-top:1rem;padding:.3rem .7rem;border:none;background:var(--accent);color:#000;border-radius:4px;font-weight:600;cursor:pointer;}
+    .card button:hover{filter:brightness(1.1);} 
+    #statusBar{background:rgba(0,0,0,.7);padding:.4rem .6rem;font-size:.8rem;}
+    /* Placeholder centers */
+    .placeholder{margin:auto;text-align:center;width:100%;color:#888;font-size:1.1rem;}
   </style>
 </head>
 <body>
-
-  <!-- Navigation ---------------------------------------------------------- -->
-  <div id="nav">
-    <a href="#" onclick="show('scope')">Scope</a>
-    <a href="#" onclick="show('harmonics')">Oberschwingungen</a>
-    <a href="/download">Download</a>
-  </div>
-
-  <!-- Haupt-Container ------------------------------------------------------ -->
-  <div id="container">
-    <!-- Scope ------------------------------------------------------------- -->
-    <div id="scope">
-      <canvas id="osc"></canvas>
-
-      <!-- Bedienelemente -->
-      <div id="controls">
-        <label>ADC-Modus
-          <button id="modeBtn">⟳ …</button>
-        </label>
-
-        <label for="timeRes">Zeitbereich (ms): <span id="timeResVal">100</span></label>
-        <input type="range" id="timeRes" min="10" max="500" step="10" value="100">
-
-        <label for="voltRes">Vertikal (V/div): <span id="voltResVal">1</span></label>
-        <input type="range" id="voltRes" min="0.1" max="5"  step="0.1" value="1">
-
-        <label for="trigger">Trigger-Level (ADC): <span id="triggerVal">2048</span></label>
-        <input type="range" id="trigger" min="0" max="4095" step="1" value="2048">
-
-        <button id="armTrigger">Trigger armieren</button>
-      </div>
-
-      <div id="delay">Abtastung …</div>
+  <nav>
+    <a data-target="scope" class="active">Scope</a>
+    <a data-target="harmonics">Harmonics</a>
+    <a data-target="ota">OTA</a>
+    <a data-target="config">Config</a>
+  </nav>
+  <!-- ───────────────── Scope Page ───────────────── -->
+  <section id="scope" class="page active">
+    <canvas id="oscCanvas"></canvas>
+    <div class="card" id="scopeControls">
+      <label>Zeit‑Bereich (ms): <span id="timeVal">100</span></label>
+      <input type="range" min="10" max="500" value="100" id="timeRange">
+      <label>Vertikal-Res (V/div): <span id="vDivVal">1</span></label>
+      <input type="range" min="0.1" max="10" step="0.1" value="1" id="vDivRange">
+      <label>Trigger‑Level (ADC): <span id="trigVal">2048</span></label>
+      <input type="range" min="0" max="4095" value="2048" id="trigRange">
+      <button id="trigBtn">Trigger armieren</button>
     </div>
-
-    <!-- Harmonische-Seite  ------------------------------------------------- -->
-    <div id="harmonics">
-      <iframe src="/harmonics.html"></iframe>
-    </div>
-  </div>
-
-  <!-- --------------------------------------------------------------------- -->
+    <div id="statusBar">Abtastung: 100 ms / Frame</div>
+  </section>
+  <!-- ───────────────── Harmonics Page ───────────────── -->
+  <section id="harmonics" class="page">
+    <iframe src="/harmonics.html" class="placeholder" style="border:none;flex:1;"></iframe>
+  </section>
+  <!-- ───────────────── OTA Page ───────────────── -->
+  <section id="ota" class="page">
+    <div class="placeholder">OTA‑Update‑Seite (in Arbeit)</div>
+  </section>
+  <!-- ───────────────── Config Page ───────────────── -->
+  <section id="config" class="page">
+    <div class="placeholder">Konfigurations‑Seite (in Arbeit)</div>
+  </section>
   <script>
-  /* ---------- Ansichts-Umschaltung -------------------------------------- */
-  function show(id){
-    ['scope','harmonics'].forEach(v=>document.getElementById(v).style.display=(v===id?'block':'none'));
-  }
-  show('scope');
+    /* ---------- Navigation Handling ---------- */
+    const navLinks = document.querySelectorAll('nav a');
+    navLinks.forEach(link=>link.addEventListener('click',()=>{
+      document.querySelector('nav a.active').classList.remove('active');
+      link.classList.add('active');
+      document.querySelector('.page.active').classList.remove('active');
+      document.getElementById(link.dataset.target).classList.add('active');
+    }));
 
-  /* ---------- Canvas-Größen-Handling ------------------------------------ */
-  const cvs = document.getElementById('osc'), ctx=cvs.getContext('2d');
-  let W,H; const resize=()=>{W=cvs.width=cvs.clientWidth;H=cvs.height=cvs.clientHeight};
-  window.addEventListener('resize',resize); resize();
-
-  /* ---------- Form-Controls --------------------------------------------- */
-  const timeRes=document.getElementById('timeRes'),
-        voltRes=document.getElementById('voltRes'),
-        trigger=document.getElementById('trigger'),
-        armBtn=document.getElementById('armTrigger'),
-        modeBtn=document.getElementById('modeBtn'),
-        tVal=document.getElementById('timeResVal'),
-        vVal=document.getElementById('voltResVal'),
-        trgVal=document.getElementById('triggerVal'),
-        delayLbl=document.getElementById('delay');
-
-  [timeRes,voltRes,trigger].forEach(el=>{
-    el.oninput=()=>({timeRes:tVal,voltRes:vVal,trigger:trgVal}[el.id].textContent=el.value)
-  });
-  let armed=false; armBtn.onclick=()=>{armed=true;armBtn.textContent='🔴 Armed'};
-
-  /* ---------- ADC-Modus -------------------------------------------------- */
-  let adcMode='single';                             // 'single' | 'interleaved'
-  async function fetchMode(){
-      try{
-        const r=await fetch('/api/adc_mode');       // liefert JSON {"mode":"single"}
-        adcMode=(await r.json()).mode;
-      }catch(e){console.warn(e)}
-      updateModeUI();
-  }
-  function updateModeUI(){
-      modeBtn.textContent=(adcMode==='single'?'Ein-Kanal':'Interleaved');
-  }
-  modeBtn.onclick=async()=>{
-      await fetch('/api/adc_mode?toggle=1');        // Server schaltet um
-      fetchMode();                                  // UI nachziehen
-  }
-  fetchMode();                                      // initial
-
-  /* ---------- Raster ----------------------------------------------------- */
-  function drawGrid(){
-    ctx.strokeStyle='rgba(0,255,0,0.25)'; ctx.lineWidth=1;
-    const hDiv=10,vDiv=8,dx=W/hDiv,dy=H/vDiv;
-    for(let i=0;i<=hDiv;i++){ctx.beginPath();ctx.moveTo(i*dx,0);ctx.lineTo(i*dx,H);ctx.stroke()}
-    for(let j=0;j<=vDiv;j++){ctx.beginPath();ctx.moveTo(0,j*dy);ctx.lineTo(W,j*dy);ctx.stroke()}
-    ctx.fillStyle='#0f0'; ctx.font='11px monospace';
-    for(let i=0;i<=hDiv;i++){ctx.fillText(((-timeRes.value*i/hDiv).toFixed(1))+'ms',i*dx+2,H-4)}
-    for(let j=0;j<=vDiv;j++){ctx.fillText((((vDiv/2-j)*voltRes.value).toFixed(2))+'V',4,j*dy-2)}
-  }
-
-  /* ---------- WebSocket -------------------------------------------------- */
-  let ws, lastFrame=performance.now();
-  function initWS(){
-    ws = new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/ws_scope');
-    ws.onopen = ()=>console.log('WS open');
-    ws.onmessage = ev=>{
-      const {voltage:V,current:I} = JSON.parse(ev.data);
-      render(V,I);
-      const now=performance.now(); delayLbl.textContent='Abtastung: '+Math.round(now-lastFrame)+' ms';
-      lastFrame=now;
-    };
-    ws.onclose = ()=>setTimeout(initWS,2000);
-  }
-  initWS();
-
-  /* ---------- Scope-Darstellung ----------------------------------------- */
-  function render(V,I){
-    ctx.clearRect(0,0,W,H); drawGrid();
-
-    /* Trigger – bei armierter Flanke Array rotieren --------------------- */
-    if(armed){
-      const thr=+trigger.value;
-      const idx=V.findIndex(v=>v>thr);
-      if(idx>=0){
-        V=V.slice(idx).concat(V.slice(0,idx));
-        I=I.slice(idx).concat(I.slice(0,idx));
-        armed=false; armBtn.textContent='Trigger armieren';
-      }
-    }
-
-    const pts=V.length,xStep=W/pts, vScale=(H/2)/(voltRes.value*2048);
-    /* Spannung (gelb) */
-    ctx.strokeStyle='yellow'; ctx.lineWidth=1; ctx.beginPath();
-    V.forEach((v,i)=>{const y=H/2-((v-2048)*vScale); i?ctx.lineTo(i*xStep,y):ctx.moveTo(i*xStep,y)});
-    ctx.stroke();
-
-    /* Strom – nur im Interleaved-Modus aktiv anzeigen ------------------- */
-    ctx.strokeStyle= adcMode==='interleaved' ? 'lime' : 'rgba(200,200,200,0.3)';
-    ctx.beginPath();
-    I.forEach((v,i)=>{const y=H/2-((v-2048)*vScale); i?ctx.lineTo(i*xStep,y):ctx.moveTo(i*xStep,y)});
-    ctx.stroke();
-  }
-
+    /* ---------- Control Panel Text‑Updates ---------- */
+    const timeRange=document.getElementById('timeRange');
+    const vDivRange=document.getElementById('vDivRange');
+    const trigRange=document.getElementById('trigRange');
+    const timeVal=document.getElementById('timeVal');
+    const vDivVal=document.getElementById('vDivVal');
+    const trigVal=document.getElementById('trigVal');
+    [timeRange,vDivRange,trigRange].forEach(inp=>inp.addEventListener('input',()=>{
+      timeVal.textContent=timeRange.value;
+      vDivVal.textContent=vDivRange.value;
+      trigVal.textContent=trigRange.value;
+    }));
   </script>
 </body>
 </html>

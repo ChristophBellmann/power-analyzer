@@ -1,17 +1,14 @@
-// spiffs_init.h
-#ifndef SPIFFS_INIT_H
-#define SPIFFS_INIT_H
-
+#pragma once
 #include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void init_spiffs(void);
+/** Mountet die Partition "spiffs" unter /spiffs.
+ *  Gibt ESP_OK bei Erfolg zurück. */
+esp_err_t spiffs_init(void);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif // SPIFFS_INIT_H

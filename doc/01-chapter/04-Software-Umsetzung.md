@@ -6,12 +6,17 @@ Ein ESP32 soll das 230 V AC Netz auf Netzrückwirkungen durch Verbraucher zu üb
 
 http://< ESP-IP >/ oder Websocket
 
+Es sollen Scope | Harmonics| Recorder geben
+
+
 \break
 
 ## Oszilloskop:
 
 - Echtzeit-Wellenformen
 - Einstellbare Zeit-/Spannungs-Scale & Trigger
+
+- In Laufzeit zwischen „Interleaved“ und „Single-Channel“ umschaltbar
 
 ![Scope-Screenshot-22052025](./../02-pictures/Scope-Screenshot-22052025.png)
 
@@ -100,7 +105,7 @@ Klick Download -> speichert data.bin zur Auswertung z.B. in python.
 
 2. **SPIFFS vorbereiten**  
    ```bash
-   idf.py spiffs_gen
+   idf.py spiffs-flash
 
 ---
 
