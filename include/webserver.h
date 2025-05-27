@@ -1,22 +1,8 @@
-// http.h
-#ifndef HTTP_H
-#define HTTP_H
-
-#include "esp_http_server.h"
-
+#pragma once
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * @brief Startet den HTTP-Server und registriert alle URI-Handler.
- *
- * @return httpd_handle_t Handle des gestarteten HTTP-Servers.
- */
-httpd_handle_t start_webserver(void);
-
+void webserver_start(void);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // HTTP_H

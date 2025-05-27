@@ -1,6 +1,11 @@
-# Name,   Type, SubType, Offset,  Size,     Flags
-nvs,      data, nvs,     0x9000,  0x4000,
-otadata,  data, ota,     0xd000,  0x2000,
-phy_init, data, phy,     0xf000,  0x1000,
-factory,  app,  factory, 0x10000, 1M,
-spiffs,   data, spiffs,  ,        1M,
+###############################################################################
+#  Variante B  –  factory + zwei OTA-Slots
+#  → drei Images je 768 KiB, 400 KiB SPIFFS, dennoch < 4 MiB
+###############################################################################
+# Name      , Type , SubType , Offset , Size     , Flags
+nvs         , data , nvs     , 0x9000 , 0x6000
+otadata     , data , ota     , 0xD000 , 0x2000
+factory     , app  , factory ,        , 0xC0000    # 768 kB
+ota_0       , app  , ota_0   ,        , 0xC0000    # 768 kB
+ota_1       , app  , ota_1   ,        , 0xC0000    # 768 kB
+storage     , data , spiffs  ,        , 0x64000    # 400 kB

@@ -2,144 +2,174 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>Power Analyzer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP-32 Oszilloskop & Power-Analyzer</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <style>
-    body { margin:0; font-family:sans-serif; background:#e0e0e0; }
-    #nav { background:#333; color:#fff; padding:8px; }
-    #nav a { color:#fff; margin:0 10px; text-decoration:none; }
-    #container { display:flex; flex-direction:column; height:calc(100vh - 40px); }
-    #scope, #harmonics { flex:1; display:none; position:relative; background:#000; }
-    canvas { display:block; width:100%; height:100%; }
-    #controls { position:absolute; top:10px; left:10px; background:rgba(255,255,255,0.8); padding:10px; border-radius:4px; }
-    #controls label { display:block; margin:5px 0 2px; font-size:12px; }
-    #controls input, #controls select { width:100%; margin-bottom:5px; }
-    #delay { position:absolute; bottom:5px; left:10px; color:#fff; font-size:12px; }
-    iframe { width:100%; height:100%; border:none; }
+    /* ---------- Layout --------------------------------------------------- */
+    body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#e0e0e0}
+    #nav{background:#333;color:#fff;padding:8px 12px}
+    #nav a{color:#fff;text-decoration:none;margin-right:14px;font-weight:bold}
+    #container{display:flex;flex-direction:column;height:calc(100vh - 42px)}
+    #scope,#harmonics{flex:1;display:none;position:relative;background:#000}
+    canvas{display:block;width:100%;height:100%}
+    iframe{border:0;width:100%;height:100%}
+
+    /* ---------- Steuerbox ------------------------------------------------- */
+    #controls{position:absolute;top:12px;left:12px;background:#fffdfdee;
+              padding:10px 12px;border-radius:6px;font-size:13px}
+    #controls label{display:block;margin:6px 0 2px;font-weight:500}
+    #controls input[type=range]{width:210px}
+    #controls button{margin-top:6px;padding:4px 10px;cursor:pointer}
+    #delay{position:absolute;bottom:6px;left:12px;color:#0f0;font-size:12px;
+           font-family:monospace}
+
+    /* ---------- Canvas-Raster-Farbe -------------------------------------- */
+    .grid {stroke:rgba(0,255,0,.25);stroke-width:1}
   </style>
 </head>
 <body>
+
+  <!-- Navigation ---------------------------------------------------------- -->
   <div id="nav">
     <a href="#" onclick="show('scope')">Scope</a>
     <a href="#" onclick="show('harmonics')">Oberschwingungen</a>
     <a href="/download">Download</a>
   </div>
+
+  <!-- Haupt-Container ------------------------------------------------------ -->
   <div id="container">
+    <!-- Scope ------------------------------------------------------------- -->
     <div id="scope">
       <canvas id="osc"></canvas>
+
+      <!-- Bedienelemente -->
       <div id="controls">
-        <label for="timeRes">Zeit-Bereich (ms): <span id="timeResVal">100</span></label>
+        <label>ADC-Modus
+          <button id="modeBtn">⟳ …</button>
+        </label>
+
+        <label for="timeRes">Zeitbereich (ms): <span id="timeResVal">100</span></label>
         <input type="range" id="timeRes" min="10" max="500" step="10" value="100">
-        <label for="voltRes">Vertikal-Res (V/div): <span id="voltResVal">1</span></label>
-        <input type="range" id="voltRes" min="0.1" max="5" step="0.1" value="1">
+
+        <label for="voltRes">Vertikal (V/div): <span id="voltResVal">1</span></label>
+        <input type="range" id="voltRes" min="0.1" max="5"  step="0.1" value="1">
+
         <label for="trigger">Trigger-Level (ADC): <span id="triggerVal">2048</span></label>
         <input type="range" id="trigger" min="0" max="4095" step="1" value="2048">
+
         <button id="armTrigger">Trigger armieren</button>
       </div>
-      <div id="delay">Abtastung: <span id="frameRate">100</span> ms / Frame</div>
+
+      <div id="delay">Abtastung …</div>
     </div>
+
+    <!-- Harmonische-Seite  ------------------------------------------------- -->
     <div id="harmonics">
-      <iframe src="/fastdetect"></iframe>
+      <iframe src="/harmonics.html"></iframe>
     </div>
   </div>
+
+  <!-- --------------------------------------------------------------------- -->
   <script>
-    // Navigation
-    function show(id){
-      document.getElementById('scope').style.display = id==='scope'?'block':'none';
-      document.getElementById('harmonics').style.display = id==='harmonics'?'block':'none';
-    }
-    show('scope');
+  /* ---------- Ansichts-Umschaltung -------------------------------------- */
+  function show(id){
+    ['scope','harmonics'].forEach(v=>document.getElementById(v).style.display=(v===id?'block':'none'));
+  }
+  show('scope');
 
-    // Canvas + Settings
-    const canvas = document.getElementById('osc'),
-          ctx = canvas.getContext('2d');
-    let width, height;
-    function resize(){ width=canvas.width=canvas.clientWidth; height=canvas.height=canvas.clientHeight; }
-    window.addEventListener('resize',resize);
-    resize();
+  /* ---------- Canvas-Größen-Handling ------------------------------------ */
+  const cvs = document.getElementById('osc'), ctx=cvs.getContext('2d');
+  let W,H; const resize=()=>{W=cvs.width=cvs.clientWidth;H=cvs.height=cvs.clientHeight};
+  window.addEventListener('resize',resize); resize();
 
-    // Controls
-    const timeRes = document.getElementById('timeRes'),
-          voltRes = document.getElementById('voltRes'),
-          trigger = document.getElementById('trigger'),
-          armBtn  = document.getElementById('armTrigger');
-    const timeResVal = document.getElementById('timeResVal'),
-          voltResVal = document.getElementById('voltResVal'),
-          triggerVal = document.getElementById('triggerVal'),
-          frameRate  = document.getElementById('frameRate');
-    let armed=false;
-    timeRes.oninput = ()=> timeResVal.textContent=timeRes.value;
-    voltRes.oninput = ()=> voltResVal.textContent=voltRes.value;
-    trigger.oninput = ()=> triggerVal.textContent=trigger.value;
-    armBtn.onclick = ()=>{ armed=true; armBtn.textContent=armed?'🔴 Armed':'Trigger armieren'; };
+  /* ---------- Form-Controls --------------------------------------------- */
+  const timeRes=document.getElementById('timeRes'),
+        voltRes=document.getElementById('voltRes'),
+        trigger=document.getElementById('trigger'),
+        armBtn=document.getElementById('armTrigger'),
+        modeBtn=document.getElementById('modeBtn'),
+        tVal=document.getElementById('timeResVal'),
+        vVal=document.getElementById('voltResVal'),
+        trgVal=document.getElementById('triggerVal'),
+        delayLbl=document.getElementById('delay');
 
-    // Grid zeichnen
-    function drawGrid(){
-      ctx.strokeStyle='rgba(0,255,0,0.2)'; ctx.lineWidth=1;
-      const hDiv=10, vDiv=8, dx=width/hDiv, dy=height/vDiv;
-      for(let i=0;i<=hDiv;i++){
-        const x=i*dx;
-        ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke();
-      }
-      for(let j=0;j<=vDiv;j++){
-        const y=j*dy;
-        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke();
-      }
-      ctx.fillStyle='#0f0'; ctx.font='12px monospace';
-      for(let i=0;i<=hDiv;i++){
-        const t = ((-timeRes.value)*(i/hDiv)).toFixed(1);
-        ctx.fillText(t+'ms', i*dx+2, height-5);
-      }
-      for(let j=0;j<=vDiv;j++){
-        const v = ((vDiv/2-j)*(voltRes.value)).toFixed(2);
-        ctx.fillText(v+'V', 5, j*dy-2);
-      }
-    }
+  [timeRes,voltRes,trigger].forEach(el=>{
+    el.oninput=()=>({timeRes:tVal,voltRes:vVal,trigger:trgVal}[el.id].textContent=el.value)
+  });
+  let armed=false; armBtn.onclick=()=>{armed=true;armBtn.textContent='🔴 Armed'};
 
-    // WebSocket Scope
-    let ws = new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/ws_scope');
-    ws.onopen = ()=> console.log('Scope WS open');
-    ws.onmessage = evt => {
-      const {voltage,current} = JSON.parse(evt.data);
-      renderScope(voltage,current);
+  /* ---------- ADC-Modus -------------------------------------------------- */
+  let adcMode='single';                             // 'single' | 'interleaved'
+  async function fetchMode(){
+      try{
+        const r=await fetch('/api/adc_mode');       // liefert JSON {"mode":"single"}
+        adcMode=(await r.json()).mode;
+      }catch(e){console.warn(e)}
+      updateModeUI();
+  }
+  function updateModeUI(){
+      modeBtn.textContent=(adcMode==='single'?'Ein-Kanal':'Interleaved');
+  }
+  modeBtn.onclick=async()=>{
+      await fetch('/api/adc_mode?toggle=1');        // Server schaltet um
+      fetchMode();                                  // UI nachziehen
+  }
+  fetchMode();                                      // initial
+
+  /* ---------- Raster ----------------------------------------------------- */
+  function drawGrid(){
+    ctx.strokeStyle='rgba(0,255,0,0.25)'; ctx.lineWidth=1;
+    const hDiv=10,vDiv=8,dx=W/hDiv,dy=H/vDiv;
+    for(let i=0;i<=hDiv;i++){ctx.beginPath();ctx.moveTo(i*dx,0);ctx.lineTo(i*dx,H);ctx.stroke()}
+    for(let j=0;j<=vDiv;j++){ctx.beginPath();ctx.moveTo(0,j*dy);ctx.lineTo(W,j*dy);ctx.stroke()}
+    ctx.fillStyle='#0f0'; ctx.font='11px monospace';
+    for(let i=0;i<=hDiv;i++){ctx.fillText(((-timeRes.value*i/hDiv).toFixed(1))+'ms',i*dx+2,H-4)}
+    for(let j=0;j<=vDiv;j++){ctx.fillText((((vDiv/2-j)*voltRes.value).toFixed(2))+'V',4,j*dy-2)}
+  }
+
+  /* ---------- WebSocket -------------------------------------------------- */
+  let ws, lastFrame=performance.now();
+  function initWS(){
+    ws = new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/ws_scope');
+    ws.onopen = ()=>console.log('WS open');
+    ws.onmessage = ev=>{
+      const {voltage:V,current:I} = JSON.parse(ev.data);
+      render(V,I);
+      const now=performance.now(); delayLbl.textContent='Abtastung: '+Math.round(now-lastFrame)+' ms';
+      lastFrame=now;
     };
+    ws.onclose = ()=>setTimeout(initWS,2000);
+  }
+  initWS();
 
-    function renderScope(v,c){
-      ctx.clearRect(0,0,width,height);
-      drawGrid();
-      // Trigger
-      if(armed){
-        const thr = parseInt(trigger.value);
-        let idx = v.findIndex(val=>val>thr);
-        if(idx<0) return; // no trigger yet
-        // rotate arrays
-        const v2 = v.slice(idx).concat(v.slice(0,idx));
-        const c2 = c.slice(idx).concat(c.slice(0,idx));
-        v.splice(0,v.length,...v2); c.splice(0,c.length,...c2);
-        armed=false;
-        armBtn.textContent='Trigger armieren';
+  /* ---------- Scope-Darstellung ----------------------------------------- */
+  function render(V,I){
+    ctx.clearRect(0,0,W,H); drawGrid();
+
+    /* Trigger – bei armierter Flanke Array rotieren --------------------- */
+    if(armed){
+      const thr=+trigger.value;
+      const idx=V.findIndex(v=>v>thr);
+      if(idx>=0){
+        V=V.slice(idx).concat(V.slice(0,idx));
+        I=I.slice(idx).concat(I.slice(0,idx));
+        armed=false; armBtn.textContent='Trigger armieren';
       }
-      // Draw waveforms
-      const pts = v.length;
-      const xStep = width/pts;
-      // Voltage = Gelb
-      ctx.beginPath(); ctx.strokeStyle='yellow'; ctx.lineWidth=1;
-      v.forEach((val,i)=>{
-        const y = height/2 - ((val-2048)/2048)*(height/2)*(1/voltRes.value);
-        i?ctx.lineTo(i*xStep,y):ctx.moveTo(i*xStep,y);
-      });
-      ctx.stroke();
-      // Current = Grün
-      ctx.beginPath(); ctx.strokeStyle='lime'; ctx.lineWidth=1;
-      c.forEach((val,i)=>{
-        const y = height/2 - ((val-2048)/2048)*(height/2)*(1/voltRes.value);
-        i?ctx.lineTo(i*xStep,y):ctx.moveTo(i*xStep,y);
-      });
-      ctx.stroke();
     }
 
-    // Frame-Rate Anzeige
-    setInterval(()=> frameRate.textContent=timeRes.value+' ms / Frame',500);
+    const pts=V.length,xStep=W/pts, vScale=(H/2)/(voltRes.value*2048);
+    /* Spannung (gelb) */
+    ctx.strokeStyle='yellow'; ctx.lineWidth=1; ctx.beginPath();
+    V.forEach((v,i)=>{const y=H/2-((v-2048)*vScale); i?ctx.lineTo(i*xStep,y):ctx.moveTo(i*xStep,y)});
+    ctx.stroke();
+
+    /* Strom – nur im Interleaved-Modus aktiv anzeigen ------------------- */
+    ctx.strokeStyle= adcMode==='interleaved' ? 'lime' : 'rgba(200,200,200,0.3)';
+    ctx.beginPath();
+    I.forEach((v,i)=>{const y=H/2-((v-2048)*vScale); i?ctx.lineTo(i*xStep,y):ctx.moveTo(i*xStep,y)});
+    ctx.stroke();
+  }
+
   </script>
 </body>
 </html>
