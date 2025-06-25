@@ -35,9 +35,11 @@ Ein ESP32-basiertes Messgerät zur Erfassung von harmonischen Oberwellen und Net
 │   └── Scope-Screenshot-22052025.png
 ```
 
-## Beispiel: THD & FFT
+## Beispiel: SCOPE, THD & FFT
 
-![Harmonics Screenshot](doc/Harmonics-Screenshot-22052025.png)
+![Scope Screenshot](doc/02-pictures/Scope-Screenshot-22052025.png)
+
+![Harmonics Screenshot](doc/02-pictures/Scope-Screenshot-22052025.png)
 
 ## Webinterface
 
@@ -100,4 +102,4 @@ with open("data.bin", "rb") as f:
 
 ## Lizenz
 
-MIT – siehe [LICENSE](LICENSE)
+APACHE2 – siehe [LICENSE](LICENSE)
