@@ -19,8 +19,8 @@
 /* --- Bekannte Netze ( ►  wifi.c ) -------------------------------------- */
 #define WIFI_CRED_CT             2           /* Anzahl Einträge unten      */
 
-#define WIFI_SSID_1   "Ultranet"
-#define WIFI_PASS_1   "Lassmichrein!"
+#define WIFI_SSID_1   "ssid"
+#define WIFI_PASS_1   "pass!"
 
 #define WIFI_SSID_2   "Pixel_cb"
 #define WIFI_PASS_2   "pixelpass"
