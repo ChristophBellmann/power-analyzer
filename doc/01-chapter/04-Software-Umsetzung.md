@@ -6,6 +6,7 @@ Ein ESP32 soll das 230 V AC Netz auf Netzrückwirkungen durch Verbraucher zu üb
 
 http://< ESP-IP >/ oder Websocket
 
+
 Es sollen Scope | Harmonics| Recorder geben
 
 
@@ -18,7 +19,7 @@ Es sollen Scope | Harmonics| Recorder geben
 
 - In Laufzeit zwischen „Interleaved“ und „Single-Channel“ umschaltbar
 
-![Scope-Screenshot-22052025](./../02-pictures/Scope-Screenshot-22052025.png)
+![Scope-Screenshot-22052025](../02-pictures/Scope-Screenshot-22052025.png)
 
 ## Analyse der Oberschwingungen:
 
@@ -26,7 +27,7 @@ Es sollen Scope | Harmonics| Recorder geben
 - Harmonische 
 - THD
 
-![Harmonics-Screenshot-22052025](./../02-pictures/Harmonics-Screenshot-22052025.png)
+![Harmonics-Screenshot-22052025](../02-pictures/Harmonics-Screenshot-22052025.png)
 
 ## Download des Speichers (anders ausgdrückt: Aufnahme):
 
@@ -187,7 +188,8 @@ with open('data.bin','rb') as f:
 
 *    Ringpuffer / Blockweise Verarbeitung  
 
-    Typischerweise konfiguriert man den DMA so, dass er immer eine bestimmte Frame-Größe (z. B. 1024 Samples) in einen Ring- oder Ping-Pong-Puffer schreibt. Wenn ein Frame voll ist, wird per Interrupt oder Task-Benachrichtigung signalisiert: „Puffer ist voll – hier stehen die nächsten 1024 Samples bereit.“
+    Typischerweise konfiguriert man den DMA so, dass er immer eine bestimmte Frame-Größe (z. B. 1024 Samples) in einen Ring- oder Ping-Pong-Puffer schreibt. Wenn ein Frame voll ist, wird per Interrupt oder Task-Benachrichtigung signalisiert: "Puffer ist voll -- hier stehen die nächsten 1024 Samples bereit."
+
 
 ### Typischer Ablauf auf einem ESP32
 

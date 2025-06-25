@@ -1,8 +1,14 @@
 # 2. Team
 
-Nur ich selbst.. 
+- Softwareentwickler  
+Programmierung in c, web
 
-OpenProject Gantt-Diagramm ?
+- Projektmanager  
+OpenProject, Gantt-Diagramm
+
+- Qualitätsmanagement  
+
+- Marketing  
 
 \break
 
