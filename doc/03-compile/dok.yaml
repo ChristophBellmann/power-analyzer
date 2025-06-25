@@ -1,12 +1,12 @@
 title: Netzanalysator
-author: [Felix, Felix, Yannik, Max, Sami, Christoph]
+author: [Christoph Bellmann]
 date: 22.05.2025
 subject: Geräteüberwachtung im AC Netz
 keywords: [Gerät, AC, Oberwellen, THD]
 subtitle:  |
   | ESP32 Speicheroszilloskop
 abstract: |
-  | Es soll ein Haushaltsgerät überwacht werden.
+  | Es soll irgend ein beliebiges Gerät überwacht werden.
 lang: "de"
 titlepage: true
 titlepage-text-color: "153133"

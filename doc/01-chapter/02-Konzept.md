@@ -1,14 +1,14 @@
 # 2. Team
 
-Stellt sich jeder mal vor. 
+Nur ich selbst.. 
 
-Wenn wir eine Projektmanagement-Software nutzen (OpenProject?) dann hier das Gantt-Diagramm hin.  
+OpenProject Gantt-Diagramm ?
 
 \break
 
 # 4. Anforderungen
 
-Allgemein Anforderungen: Leistungsaufnahme einer Kaffeemaschine messen.
+Allgemein Anforderungen: Internetverbindung
 
 : Was soll gemessen werden:
 
@@ -23,7 +23,7 @@ Allgemein Anforderungen: Leistungsaufnahme einer Kaffeemaschine messen.
 
 # 5. Spezifikation
 
-Die Kaffeemaschine verursacht Netzrückwirkungen. Wir stellen fest, ob die Höhe der Oberwellen noch innerhalb der Norm liegt. 
+Ein Gerät verursacht Netzrückwirkungen. Es ist festzustellen, ob die Höhe der Oberwellen noch innerhalb der Norm liegt. 
 
 ## 5.1 Idee und Lösung
 

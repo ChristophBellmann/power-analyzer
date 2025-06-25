@@ -1,5 +1,5 @@
 # 4. Ideen
 
-Auslblick.  
+Ausblick.  
 
 # 5. Zitate und Quellen

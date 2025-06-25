@@ -1,3 +1,3 @@
 # 1. Motivation
 
-Wir sollen dieses Projekt 4 machen.  
+Ein Mini-Oszilloskop. Warum? Braucht man vielleicht mal für remote-überwachung von Geräten.  
