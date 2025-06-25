@@ -39,7 +39,7 @@ Ein ESP32-basiertes Messgerät zur Erfassung von harmonischen Oberwellen und Net
 
 ![Scope Screenshot](doc/02-pictures/Scope-Screenshot-22052025.png)
 
-![Harmonics Screenshot](doc/02-pictures/Scope-Screenshot-22052025.png)
+![Harmonics Screenshot](doc/02-pictures/Harmonics-Screenshot-22052025.png)
 
 ## Webinterface
 
