@@ -4,7 +4,7 @@ Ein ESP32-basiertes Messgerät zur Erfassung von harmonischen Oberwellen und Net
 
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-ESP32-blue)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 ## Features
 
