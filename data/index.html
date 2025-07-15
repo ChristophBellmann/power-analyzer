@@ -6,77 +6,59 @@
   <title>Power-Analyzer</title>
   <style>
     :root {
-      /* ───── Theme 1 (Dark) ───── */
+      /* ───── Theme 1 (Standard) ───── */
       --bg-nav:     #262626;
       --bg-page:    #000;
       --bg-card:    #d3d3d3;
       --fg-nav:     #fff;
       --accent:     #40c0d0;
-      --grid-color: rgba(0,255,0,0.5);    /* vorher 0.2 */
+      --grid-color: rgba(0,255,0,0.5);        /* stärkerer Kontrast */
       --trace-v:    yellow;
       --trace-i:    lime;
-      --text-scope: #fff;                 /* jetzt weiß */
+      --text-scope: #000;
 
-      /* ───── Theme 2 (Light) ───── */
+      /* ───── Theme 2 (Hell) ───── */
       --bg-nav-2:   #eee;
       --bg-page-2:  #fff;
       --bg-card-2:  #fff;
       --fg-nav-2:   #000;
       --accent-2:   #d04040;
-      --grid-color-2: rgba(0,0,0,0.3);     /* etwas stärker */
+      --grid-color-2: rgba(0,0,0,0.3);
       --trace-v-2:  #d04040;
       --trace-i-2:  #4040d0;
       --text-scope-2: #000;
     }
 
-    html, body {
-      margin:0; padding:0;
-      font-family:sans-serif;
-      height:100vh;
-      overflow:hidden;
-      transition: background .3s, color .3s;
-    }
     body {
-      display:flex; flex-direction:column;
+      margin:0; font-family:sans-serif;
       background: var(--bg-page);
       color: var(--fg-nav);
+      display:flex; flex-direction:column; height:100vh;
+      transition: background .3s, color .3s;
     }
-    /* Theme 2 */
     html.theme2 body {
       background: var(--bg-page-2);
       color: var(--fg-nav-2);
     }
-
-    /* ───── Navbar ───── */
     nav {
       background: var(--bg-nav);
       display:flex; gap:1rem; padding:.4rem 1rem;
     }
-    html.theme2 nav {
-      background: var(--bg-nav-2);
-    }
+    html.theme2 nav { background: var(--bg-nav-2); }
     nav a {
-      color: var(--fg-nav);
-      text-decoration:none;
-      padding:.3rem .6rem;
-      border-radius:4px;
-      cursor:pointer;
-      transition: background .2s;
+      color: var(--fg-nav); text-decoration:none;
+      padding:.3rem .6rem; border-radius:4px;
+      cursor:pointer; transition: background .2s;
     }
-    html.theme2 nav a {
-      color: var(--fg-nav-2);
-    }
+    html.theme2 nav a { color: var(--fg-nav-2); }
     nav a.active {
-      background: var(--accent);
-      color:#000;
+      background: var(--accent); color:#000;
     }
     html.theme2 nav a.active {
-      background: var(--accent-2);
-      color:#000;
+      background: var(--accent-2); color:#000;
     }
 
-    /* ───── Pages ───── */
-    .page { flex:1; display:none; position:relative; }
+    .page { flex:1; display:none; position:relative; overflow:hidden; }
     .page.active { display:flex; }
 
     /* ───── Scope ───── */
@@ -86,11 +68,7 @@
     }
     #controls {
       position:absolute; top:10px; left:10px;
-      background:rgba(255,255,255,0.8);
-      padding:10px; border-radius:4px;
-    }
-    html.theme2 #controls {
-      background: rgba(0,0,0,0.1);
+      background:rgba(255,255,255,0.8); padding:10px; border-radius:4px;
     }
     #controls label { display:block; margin:5px 0 2px; font-size:12px; color:#000; }
     #controls input { width:100%; margin-bottom:5px; }
@@ -99,33 +77,25 @@
       background:var(--accent); color:#000;
       border-radius:4px; cursor:pointer;
     }
-    html.theme2 #controls button {
-      background: var(--accent-2);
+    html.theme2 #controls {
+      background: rgba(0,0,0,0.1);
     }
     #delay {
       position:absolute; bottom:5px; left:10px;
-      font-size:12px;
-      color: var(--text-scope);
+      font-size:12px; color:var(--text-scope);
     }
 
-    /* ───── Harmonics ───── */
     iframe { border:none; width:100%; height:100%; }
 
     /* ───── Config ───── */
     #config .card {
-      margin:auto;
-      background:var(--bg-card);
-      padding:1rem;
-      border-radius:4px;
-      color:#000;
-      width:300px;
-      box-shadow:0 2px 6px rgba(0,0,0,.3);
+      margin:auto; background:var(--bg-card);
+      padding:1rem; border-radius:4px; color:#000;
+      width:300px; box-shadow:0 2px 6px rgba(0,0,0,.3);
     }
-    html.theme2 #config .card {
-      background: var(--bg-card-2);
-    }
+    html.theme2 #config .card { background: var(--bg-card-2); }
     #config label { display:block; margin-top:.6rem; font-size:.9rem; }
-    #config input[type=range], #config select, #config input[type=color] {
+    #config input[type=range], #config select {
       width:100%; margin-top:.3rem;
     }
     #config button {
@@ -133,55 +103,48 @@
       background:var(--accent); border:none; border-radius:4px;
       color:#000; cursor:pointer;
     }
-    html.theme2 #config button {
-      background: var(--accent-2);
-    }
   </style>
 </head>
 <body>
   <nav>
-    <a data-target="scope"  class="active">Scope</a>
+    <a data-target="scope" class="active">Scope</a>
     <a data-target="harmonics">Harmonics</a>
     <a data-target="ota">OTA</a>
     <a data-target="config">Config</a>
   </nav>
 
-  <!-- Scope -->
   <section id="scope" class="page active">
     <canvas id="osc"></canvas>
     <div id="controls">
-      <label>Zeit (ms): <span id="timeResVal">100</span></label>
+      <label>Zeit-Bereich (ms): <span id="timeResVal">100</span></label>
       <input type="range" id="timeRes" min="10" max="500" step="10" value="100">
-      <label>V/div: <span id="voltResVal">1</span></label>
+      <label>Vertikal-Res (V/div): <span id="voltResVal">1</span></label>
       <input type="range" id="voltRes" min="0.1" max="5" step="0.1" value="1">
-      <label>Trigger (ADC): <span id="triggerVal">2048</span></label>
+      <label>Trigger-Level (ADC): <span id="triggerVal">2048</span></label>
       <input type="range" id="trigger" min="0" max="4095" step="1" value="2048">
       <button id="armTrigger">Trigger armieren</button>
     </div>
     <div id="delay">Abtastung: <span id="frameRate">100</span> ms / Frame</div>
   </section>
 
-  <!-- Harmonics -->
   <section id="harmonics" class="page">
     <iframe src="/harmonics.html"></iframe>
   </section>
 
-  <!-- OTA -->
   <section id="ota" class="page">
     <div class="placeholder">OTA-Update in Arbeit…</div>
   </section>
 
-  <!-- Config -->
   <section id="config" class="page">
     <div class="card">
-      <label for="traceWidth">Trace-Breite (px): <span id="traceWidthVal"></span></label>
-      <input type="range" id="traceWidth" min="1" max="5" step="1">
-      <label for="gridWidth">Grid-Breite (px): <span id="gridWidthVal"></span></label>
-      <input type="range" id="gridWidth" min="1" max="5" step="1">
+      <label for="traceWidth">Trace-Breite (px): <span id="traceWidthVal">4</span></label>
+      <input type="range" id="traceWidth" min="1" max="5" step="1" value="4">
+      <label for="gridWidth">Grid-Breite (px): <span id="gridWidthVal">2</span></label>
+      <input type="range" id="gridWidth" min="1" max="5" step="1" value="2">
       <label for="traceVColor">Volt-Farbe:</label>
-      <input type="color" id="traceVColor">
+      <input type="color" id="traceVColor" value="#ffff00">
       <label for="traceIColor">Curr-Farbe:</label>
-      <input type="color" id="traceIColor">
+      <input type="color" id="traceIColor" value="#00ff00">
       <label for="themeSelect">Theme:</label>
       <select id="themeSelect">
         <option value="1">Theme 1 (dunkel)</option>
@@ -192,9 +155,9 @@
   </section>
 
   <script>
-    // Navigation
-    document.querySelectorAll('nav a').forEach(a=>{
-      a.addEventListener('click',()=>{
+    // ───── Navigation ─────
+    document.querySelectorAll('nav a').forEach(a => {
+      a.addEventListener('click', () => {
         document.querySelector('nav a.active').classList.remove('active');
         a.classList.add('active');
         document.querySelector('.page.active').classList.remove('active');
@@ -202,168 +165,214 @@
       });
     });
 
-    // Canvas & Controls
-    const canvas   = document.getElementById('osc');
-    const ctx      = canvas.getContext('2d');
-    const timeRes  = document.getElementById('timeRes');
-    const voltRes  = document.getElementById('voltRes');
-    const trigger  = document.getElementById('trigger');
-    const armBtn   = document.getElementById('armTrigger');
-    const frameRate= document.getElementById('frameRate');
-
-    const gridWidthInput = document.getElementById('gridWidth');
-    const traceWidthInput= document.getElementById('traceWidth');
-
-    let W,H, armed=false;
-
-    function resize(){
+    // ───── Canvas & Controls Setup ─────
+    const canvas     = document.getElementById('osc');
+    const ctx        = canvas.getContext('2d');
+    let W, H;
+    function resize() {
       W = canvas.width  = canvas.clientWidth;
       H = canvas.height = canvas.clientHeight;
     }
     window.addEventListener('resize', resize);
     resize();
 
-    // Update value‐Displays
-    const display = (input, spanId)=>{
-      document.getElementById(spanId).textContent = input.value;
-    };
-    [timeRes,voltRes,trigger].forEach(i=>{
-      i.addEventListener('input',()=> display(i,i.id+'Val'));
-    });
-    [traceWidthInput,gridWidthInput].forEach(i=>{
-      i.addEventListener('input',()=> display(i,i.id+'Val'));
-    });
-    armBtn.addEventListener('click',()=>{
-      armed=true; armBtn.textContent='🔴 Armed';
+    // Controls
+    const timeRes     = document.getElementById('timeRes'),
+          voltRes     = document.getElementById('voltRes'),
+          trigger     = document.getElementById('trigger'),
+          armBtn      = document.getElementById('armTrigger'),
+          gridWidth   = document.getElementById('gridWidth'),
+          traceWidth  = document.getElementById('traceWidth');
+
+    const timeResVal  = document.getElementById('timeResVal'),
+          voltResVal  = document.getElementById('voltResVal'),
+          triggerVal  = document.getElementById('triggerVal'),
+          frameRate   = document.getElementById('frameRate'),
+          traceWidthVal= document.getElementById('traceWidthVal'),
+          gridWidthVal = document.getElementById('gridWidthVal');
+
+    // Initial display values
+    timeResVal.textContent    = timeRes.value;
+    voltResVal.textContent    = voltRes.value;
+    triggerVal.textContent    = trigger.value;
+    traceWidthVal.textContent = traceWidth.value;
+    gridWidthVal.textContent  = gridWidth.value;
+
+    [timeRes, voltRes, trigger].forEach(el => {
+      el.addEventListener('input', () => {
+        timeResVal.textContent = timeRes.value;
+        voltResVal.textContent = voltRes.value;
+        triggerVal.textContent = trigger.value;
+      });
     });
 
-    function drawGrid(){
-      // Farbe je nach Theme
-      const is2 = document.documentElement.classList.contains('theme2');
-      const col = is2 ? getComputedStyle(document.documentElement).getPropertyValue('--grid-color-2')
-                      : getComputedStyle(document.documentElement).getPropertyValue('--grid-color');
-      ctx.strokeStyle = col.trim();
-      ctx.lineWidth   = parseFloat(gridWidthInput.value);
+    [traceWidth].forEach(el => {
+      el.addEventListener('input', () => {
+        traceWidthVal.textContent = el.value;
+      });
+    });
 
-      const hDiv=10, vDiv=8, dx=W/hDiv, dy=H/vDiv;
-      for(let i=0;i<=hDiv;i++){
+    [gridWidth].forEach(el => {
+      el.addEventListener('input', () => {
+        gridWidthVal.textContent = el.value;
+      });
+    });
+
+    let armed = false;
+    armBtn.addEventListener('click', () => {
+      armed = true;
+      armBtn.textContent = '🔴 Armed';
+    });
+
+    // ───── Dynamisches Grid ─────
+    const BASE_DIV_MS = 50;
+    function drawGrid() {
+      const totalMs = parseInt(timeRes.value);
+      const hDiv    = Math.max(1, Math.round(totalMs / BASE_DIV_MS));
+      const gridCol = getComputedStyle(document.documentElement)
+                        .getPropertyValue(
+                          document.documentElement.classList.contains('theme2')
+                            ? '--grid-color-2'
+                            : '--grid-color'
+                        ).trim();
+      ctx.strokeStyle = gridCol;
+      ctx.lineWidth   = parseFloat(gridWidth.value);
+
+      // vertikale Linien
+      const dx = W / hDiv;
+      for (let i = 0; i <= hDiv; i++) {
         ctx.beginPath();
-        ctx.moveTo(i*dx,0);
-        ctx.lineTo(i*dx,H);
+        ctx.moveTo(i * dx, 0);
+        ctx.lineTo(i * dx, H);
         ctx.stroke();
       }
-      for(let j=0;j<=vDiv;j++){
+      // horizontale Spannungsteiler
+      const vDiv = 8;
+      const dy   = H / vDiv;
+      for (let j = 0; j <= vDiv; j++) {
         ctx.beginPath();
-        ctx.moveTo(0,j*dy);
-        ctx.lineTo(W,j*dy);
+        ctx.moveTo(0, j * dy);
+        ctx.lineTo(W, j * dy);
         ctx.stroke();
       }
     }
 
-    function renderScope(v,c){
-      ctx.clearRect(0,0,W,H);
+    // ───── Scope Rendering ─────
+    function renderScope(v, c) {
+      ctx.clearRect(0, 0, W, H);
       drawGrid();
 
-      // Trigger‐Align
-      if(armed){
-        const thr = +trigger.value;
-        const idx = v.findIndex(x=>x>thr);
-        if(idx>=0){
-          const v2 = v.slice(idx).concat(v.slice(0,idx));
-          const c2 = c.slice(idx).concat(c.slice(0,idx));
-          v.splice(0,v.length,...v2);
-          c.splice(0,c.length,...c2);
-          armed=false; armBtn.textContent='Trigger armieren';
-        } else return;
+      if (armed) {
+        const thr = parseInt(trigger.value);
+        const idx = v.findIndex(val => val > thr);
+        if (idx >= 0) {
+          const v2 = v.slice(idx).concat(v.slice(0, idx));
+          const c2 = c.slice(idx).concat(c.slice(0, idx));
+          v.splice(0, v.length, ...v2);
+          c.splice(0, c.length, ...c2);
+          armed = false;
+          armBtn.textContent = 'Trigger armieren';
+        } else {
+          return;
+        }
       }
 
-      // Voltage‐Trace
+      // Spannungs-Trace
       ctx.beginPath();
-      ctx.strokeStyle = is2
-        ? getComputedStyle(document.documentElement).getPropertyValue('--trace-v-2').trim()
-        : getComputedStyle(document.documentElement).getPropertyValue('--trace-v').trim();
-      ctx.lineWidth = parseFloat(traceWidthInput.value);
-      v.forEach((val,i)=>{
-        const y = H/2 - ((val-2048)/2048)*(H/2)*(1/voltRes.value);
-        i ? ctx.lineTo(i*(W/v.length), y) : ctx.moveTo(0,y);
+      ctx.strokeStyle = getComputedStyle(document.documentElement)
+                           .getPropertyValue(
+                             document.documentElement.classList.contains('theme2')
+                               ? '--trace-v-2'
+                               : '--trace-v'
+                           ).trim();
+      ctx.lineWidth = parseFloat(traceWidth.value);
+      v.forEach((val, i) => {
+        const x = i * (W / v.length);
+        const y = H / 2 - ((val - 2048) / 2048) * (H / 2) * (1 / voltRes.value);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
       ctx.stroke();
 
-      // Current‐Trace
+      // Strom-Trace
       ctx.beginPath();
-      ctx.strokeStyle = is2
-        ? getComputedStyle(document.documentElement).getPropertyValue('--trace-i-2').trim()
-        : getComputedStyle(document.documentElement).getPropertyValue('--trace-i').trim();
-      ctx.lineWidth = parseFloat(traceWidthInput.value);
-      c.forEach((val,i)=>{
-        const y = H/2 - ((val-2048)/2048)*(H/2)*(1/voltRes.value);
-        i ? ctx.lineTo(i*(W/c.length), y) : ctx.moveTo(0,y);
+      ctx.strokeStyle = getComputedStyle(document.documentElement)
+                           .getPropertyValue(
+                             document.documentElement.classList.contains('theme2')
+                               ? '--trace-i-2'
+                               : '--trace-i'
+                           ).trim();
+      ctx.lineWidth = parseFloat(traceWidth.value);
+      c.forEach((val, i) => {
+        const x = i * (W / c.length);
+        const y = H / 2 - ((val - 2048) / 2048) * (H / 2) * (1 / voltRes.value);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
       ctx.stroke();
     }
 
-    // WebSocket Scope
-    const ws = new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/ws_scope');
+    // ───── WebSocket Scope ─────
+    const ws = new WebSocket((location.protocol === 'https:' ? 'wss' : 'ws') +
+                              '://' + location.host + '/ws_scope');
     ws.onmessage = evt => {
-      const {volt,curr} = JSON.parse(evt.data);
-      renderScope(volt,curr);
+      const { volt, curr } = JSON.parse(evt.data);
+      renderScope(volt, curr);
     };
 
-    // Frame-Rate
-    setInterval(()=>{
+    // Frame-Rate-Anzeige
+    setInterval(() => {
       frameRate.textContent = timeRes.value + ' ms / Frame';
     }, 500);
 
-    // ───── Config Page ─────
-    const cfg = {};
+    // ───── Config-Seite ─────
+    const cfg = { traceWidth: 4, gridWidth: 2, traceVColor: '#ffff00', traceIColor: '#00ff00', theme: 1 };
     const el = {
-      tw: document.getElementById('traceWidth'),
-      gw: document.getElementById('gridWidth'),
-      vc: document.getElementById('traceVColor'),
-      ic: document.getElementById('traceIColor'),
-      th: document.getElementById('themeSelect'),
-      btn:document.getElementById('saveConfig'),
-      twVal: document.getElementById('traceWidthVal'),
-      gwVal: document.getElementById('gridWidthVal')
+      tw:  document.getElementById('traceWidth'),
+      gw:  document.getElementById('gridWidth'),
+      vc:  document.getElementById('traceVColor'),
+      ic:  document.getElementById('traceIColor'),
+      th:  document.getElementById('themeSelect'),
+      btn: document.getElementById('saveConfig')
     };
 
     fetch('/api/config')
-      .then(r=>r.json())
-      .then(j=> {
-        Object.assign(cfg,j);
-        el.tw.value = cfg.traceWidth;  display(el.tw,'traceWidthVal');
-        el.gw.value = cfg.gridWidth;   display(el.gw,'gridWidthVal');
+      .then(r => r.json())
+      .then(j => {
+        Object.assign(cfg, j);
+        el.tw.value = cfg.traceWidth; document.getElementById('traceWidthVal').textContent = cfg.traceWidth;
+        el.gw.value = cfg.gridWidth;  document.getElementById('gridWidthVal').textContent  = cfg.gridWidth;
         el.vc.value = cfg.traceVColor;
         el.ic.value = cfg.traceIColor;
         el.th.value = cfg.theme;
-        applyTheme(cfg.theme);
+        document.documentElement.classList.toggle('theme2', cfg.theme === 2);
       });
 
-    el.btn.addEventListener('click',()=>{
+    [el.tw, el.gw].forEach(inp => {
+      inp.addEventListener('input', () => {
+        document.getElementById(inp.id + 'Val').textContent = inp.value;
+      });
+    });
+
+    el.btn.addEventListener('click', () => {
       const body = {
-        traceWidth: +el.tw.value,
-        gridWidth:  +el.gw.value,
+        traceWidth: parseInt(el.tw.value),
+        gridWidth:  parseInt(el.gw.value),
         traceVColor: el.vc.value,
         traceIColor: el.ic.value,
-        theme:       +el.th.value
+        theme:       parseInt(el.th.value)
       };
-      fetch('/api/config',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+      fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
-      }).then(r=>{
-        if(r.ok){
+      }).then(r => {
+        if (r.ok) {
           console.log('Config gespeichert');
-          applyTheme(body.theme);
+          document.documentElement.classList.toggle('theme2', body.theme === 2);
         } else {
           alert('Fehler beim Speichern!');
         }
       });
     });
-
-    function applyTheme(t){
-      document.documentElement.classList.toggle('theme2', t===2);
-    }
   </script>
 </body>
 </html>
