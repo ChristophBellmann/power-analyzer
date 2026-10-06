@@ -1,1 +1,0 @@
-Esp32 wroom case by guillermohor on Thingiverse: https://www.thingiverse.com/thing:4667813
