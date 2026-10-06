@@ -1,12 +1,17 @@
-# ESP32 Power Analyzer
+# ESP32 Measurement & Spectrum Analysis
 
-An ESP32-based measurement platform for observing voltage and current waveforms, recording measurement data, and analysing harmonic content and total harmonic distortion (THD).
+A family of ESP32 measurement projects for real-time waveform acquisition, frequency-domain analysis and browser-based visualization.
 
-The project combines an isolated analogue front end, continuous ADC acquisition, FFT-based signal processing, an embedded web interface and downloadable measurement data.
+The documentation combines two closely related development stages:
+
+- **Spectrum Analyzer** — the earlier real-time audio/signal-analysis platform, using continuous ADC acquisition, FFT processing, WebSocket data and browser visualizations.
+- **Power Analyzer** — the later electrical measurement platform focused on voltage/current waveforms, harmonic content, THD and downloadable measurement data.
+
+Keeping both stages together makes the technical evolution visible without presenting two strongly overlapping systems as unrelated portfolio projects.
 
 ![Oscilloscope view](../doc/02-pictures/Scope-Screenshot-22052025.png)
 
-## What it does
+## Current Power Analyzer
 
 - Live voltage and current oscilloscope in the browser
 - Harmonic analysis including DC component, harmonics and THD
@@ -18,11 +23,11 @@ The project combines an isolated analogue front end, continuous ADC acquisition,
 
 ## Documentation
 
-Start with [System overview](overview.md), then continue with [Hardware](hardware.md), [Measurement & FFT](measurement-and-fft.md), [Software architecture](software-architecture.md), [Web interface](web-interface.md), [Data recording](data-recording.md), and [Build & installation](build-and-installation.md).
+Start with [System overview](overview.md). The [Spectrum Analyzer](spectrum-analyzer.md) chapter documents the earlier project stage and its relationship to the Power Analyzer. The remaining chapters describe the current electrical measurement platform.
 
 The repository also contains the original project documentation and application article; see [Technical documents](technical-documents.md).
 
 ---
 
 **Developed by Renewable Energy Design**  
-Engineering · Embedded Systems · Energy · Automation
+Engineering · Embedded Systems · Measurement · Energy · Automation
