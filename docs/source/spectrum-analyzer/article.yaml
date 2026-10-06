@@ -1,0 +1,42 @@
+title: Title abc
+author: [Author 1, 2, 3]
+date: Today is the time
+subject: What is it about
+keywords: [thing, meaning, interest]
+lang: "en"
+bibliography: citations.bib
+csl: csl/ieee-with-url.csl
+disable-header-and-footer: yes
+geometry: "left=2cm, right=2cm, top=2cm, bottom=3cm, headsep=1cm"
+
+header-includes:
+- |
+  ```{=latex}
+
+  \usepackage{titling}
+  \pretitle{\Huge\bfseries}
+  \posttitle{\vspace{0.1em}}
+
+  \preauthor{\begin{center}\fontsize{14bp}{14bp}\selectfont}
+  \postauthor{\par\end{center}}
+
+  \predate{\begin{center}\fontsize{9bp}{9bp}\selectfont}
+  \postdate{\par\end{center}}
+
+  \usepackage{tcolorbox}
+  \usepackage{awesomebox}
+  \newtcolorbox{info-box}{colback=cyan!5!white,arc=0pt,outer arc=0pt,colframe=cyan!60!black}
+  \newtcolorbox{warning-box}{colback=orange!5!white,arc=0pt,outer arc=0pt,colframe=orange!80!black}
+  \newtcolorbox{error-box}{colback=red!5!white,arc=0pt,outer arc=0pt,colframe=red!75!black}
+
+  ```
+pandoc-latex-environment:
+  tcolorbox: [box]
+  info-box: [infobox]
+  warning-box: [warningbox]
+  error-box: [errorbox]
+  noteblock: [note]
+  tipblock: [tip]
+  warningblock: [warningblock]
+  cautionblock: [cautionblock]
+  importantblock: [importantblock]
