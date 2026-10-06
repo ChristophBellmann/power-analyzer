@@ -1,0 +1,11 @@
+$schema: https://api.gitbook.com/gitbook-docs.yaml
+site:
+  title: ESP32 Power Analyzer
+  structure:
+    - type: space
+      key: power-analyzer
+      title: ESP32 Power Analyzer
+      path: docs
+      default: true
+      content:
+        directory: ./docs
