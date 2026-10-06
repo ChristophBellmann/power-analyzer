@@ -1,3 +1,11 @@
-.pio
-.vscode
-build
+**/.pio/
+**/.vscode/
+**/build/
+**/sdkconfig
+**/sdkconfig.old
+**/sdkconfig.*.old
+**/sdkconfig.*
+!**/sdkconfig.defaults
+**/managed_components/
+**/__pycache__/
+/.venv-docs/

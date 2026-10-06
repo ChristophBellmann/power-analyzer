@@ -4,11 +4,11 @@ title: Title abc
 
 !include-header ./doc.yaml
 
-!include ./../01-chapter/01-begin.md
+!include ../../archive/spectrum-analyzer/01-introduction.md
 
-!include ./../01-chapter/02-concept.md
+!include ../../archive/spectrum-analyzer/02-concept.md
 
-!include ./../01-chapter/05-end.md
+!include ../../archive/spectrum-analyzer/05-conclusion.md
 
 
 <!--- 

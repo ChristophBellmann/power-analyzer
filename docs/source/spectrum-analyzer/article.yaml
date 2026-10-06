@@ -5,7 +5,7 @@ subject: What is it about
 keywords: [thing, meaning, interest]
 lang: "en"
 bibliography: citations.bib
-csl: csl/ieee-with-url.csl
+csl: ieee-with-url.csl
 disable-header-and-footer: yes
 geometry: "left=2cm, right=2cm, top=2cm, bottom=3cm, headsep=1cm"
 

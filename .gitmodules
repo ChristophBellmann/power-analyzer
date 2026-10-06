@@ -1,0 +1,4 @@
+[submodule "components/esp-dsp"]
+	path = components/esp-dsp
+	url = https://github.com/ChristophBellmann/esp-dsp.git
+	branch = power-analyzer-compatible

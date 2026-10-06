@@ -1,0 +1,3 @@
+# Preserve original Markdown hard breaks and the existing C source line endings.
+docs/archive/spectrum-analyzer/original-README.md whitespace=-blank-at-eol
+main/main.c whitespace=cr-at-eol

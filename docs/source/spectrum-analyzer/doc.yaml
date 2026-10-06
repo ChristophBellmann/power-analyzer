@@ -12,12 +12,12 @@ titlepage: true
 titlepage-text-color: "153133"
 titlepage-rule-color: "153133"
 titlepage-rule-height: 2
-titlepage-logo: ./../02-pictures/logo_flower-fraktal.pdf
+titlepage-logo: assets/logo_flower-fraktal.pdf
 logo-width: 80mm
 fontfamily: bera
 fontsize: 11pt
 bibliography: citations.bib
-csl: csl/ieee-with-url.csl
+csl: ieee-with-url.csl
 toc: true
 lot: true
 lof: true

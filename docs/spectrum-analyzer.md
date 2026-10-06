@@ -1,39 +1,56 @@
 # Spectrum Analyzer
 
-The **ESP32 Spectrum Analyzer** is the signal-analysis branch of this repository. It focuses on real-time audio/frequency analysis and is maintained alongside the electrical Power Analyzer as part of the same embedded measurement project family.
+The Spectrum Analyzer is the audio/frequency firmware variant maintained in the
+[Power Analyzer repository](https://github.com/ChristophBellmann/power-analyzer).
+The two applications share ESP-DSP, but are built and flashed separately.
 
-## Integrated project structure
-
-The Spectrum Analyzer material is organized by function rather than kept as a legacy dump:
-
-- `firmware/spectrum-analyzer/` — ESP32 firmware variant and build configuration
-- `data/spectrum-analyzer/` — browser interfaces for live monitoring and fast detection
-- `analysis/spectrum-analyzer/` — FFT/audio analysis notebooks and supporting calculations
-- `hardware/cad/spectrum-analyzer/` — enclosure and microphone CAD assets
-- `docs/assets/spectrum-analyzer/` — interface and hardware reference images
-
-The Power Analyzer remains the current electrical-measurement implementation under the repository's normal `main/`, `include/` and `data/` structure.
-
-## Processing chain
+## Signal processing
 
 ```text
-ESP32 ADC
-→ continuous high-speed acquisition
-→ smoothing / normalization
-→ FFT
-→ dominant-frequency and trend analysis
-→ WebSocket
-→ browser visualization
+ESP32 ADC → continuous acquisition → normalization → FFT
+→ dominant-frequency and trend analysis → WebSocket → browser
 ```
 
-The Spectrum Analyzer uses a 1024-sample FFT workflow and browser interfaces for spectrum/history monitoring, frequency detection and signal inspection.
+The firmware configures 44,100 samples/s and a 1024-point FFT: approximately
+43.1 Hz per bin and a 22.05 kHz Nyquist limit. Historical claims of 441,000 samples/s
+or a 44.1 kHz analysis range are not the current configuration. Hardware timing
+and detection accuracy still need experimental verification.
 
-## Relationship to the Power Analyzer
+## Firmware and frontend
 
-Both variants share the same engineering pattern: acquire analogue signals continuously on an ESP32, process them locally, and expose results through a web interface.
+See the [build instructions](build-and-installation.md) for both applications.
+Spectrum Analyzer serves three browser interfaces:
 
-The Power Analyzer extends this architecture toward voltage/current waveforms, harmonic analysis, total harmonic distortion and measurement recording. Keeping both variants in one repository preserves the development path while avoiding two overlapping portfolio projects.
+- `/`: spectrum inspection, WAV playback and download (`/wav`).
+- `/fastdetect`: frequency history and trend detection.
+- `/monitoring`: frequency monitoring / RPM display.
 
-## Dependency handling
+All use the Spectrum firmware's `/ws` endpoint. They cannot be served as working
+Spectrum interfaces by the electrical firmware, whose WebSocket API differs.
 
-Third-party ESP-DSP sources are not duplicated specifically for the Spectrum Analyzer. The repository already contains the ESP-DSP component used by the project family.
+![Spectrum and WAV interface](assets/spectrum-analyzer/Bildschirmfoto_ESP32-Index.png)
+
+![Frequency history](assets/spectrum-analyzer/Bildschirmfoto_ESP32-Trends.png)
+
+![Monitoring interface](assets/spectrum-analyzer/Bildschirmfoto_ESP32-Monitor.png)
+
+## Sources and analysis
+
+In the canonical repository:
+
+| Path | Purpose |
+| --- | --- |
+| `firmware/spectrum-analyzer/` | Separate ESP-IDF / PlatformIO application |
+| `data/spectrum-analyzer/` | The three original browser UIs |
+| `analysis/spectrum-analyzer/` | Both notebooks and WAV calculations |
+| `hardware/cad/spectrum-analyzer/` | Seven STL models, enclosure images and original attribution |
+| `docs/source/spectrum-analyzer/` | Adapted Pandoc sources and source logo |
+| `docs/archive/spectrum-analyzer/` | Historical text and reference PDF outputs |
+| `components/esp-dsp/` | Shared, pinned submodule |
+
+Enclosures and licensing are described under [Hardware](hardware.md).
+Original PDFs and their regeneration workflow are linked under
+[Technical documents](technical-documents.md). Historical documentation includes
+unfinished templates; it is preserved for provenance and is not a specification.
+The [migration record](spectrum-analyzer-migration.md) accounts for every original
+tracked file and documents the archive criteria.

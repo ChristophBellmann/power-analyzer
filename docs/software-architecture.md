@@ -6,7 +6,8 @@ Key source areas include:
 
 - `main/` — application initialization and firmware modules
 - `include/` — public headers and configuration
-- `data/` — SPIFFS web frontend
+- `data/power-analyzer/` — electrical SPIFFS web frontend
+- `data/spectrum-analyzer/` — audio/frequency SPIFFS web frontend
 - `components/` — project components
 - `doc/` — original technical documentation and figures
 

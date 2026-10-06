@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16.0)
+set(EXTRA_COMPONENT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../../components" "${CMAKE_CURRENT_LIST_DIR}/src")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(SpectrumAnalyzer)
-set(EXTRA_COMPONENT_DIRS components)
+project(spectrum-analyzer)
+spiffs_create_partition_image(spiffs "${CMAKE_CURRENT_LIST_DIR}/../../data/spectrum-analyzer" FLASH_IN_PROJECT)

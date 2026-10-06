@@ -17,8 +17,13 @@ static const char *TAG = "PSRAM_TEST";
 static void test_psram(void)
 {
     // 1) Gesamte PSRAM-Größe abfragen
+#if CONFIG_SPIRAM
     size_t total = esp_psram_get_size();
     ESP_LOGI(TAG, "esp_psram_get_size(): %u KiB", total / 1024);
+
+#else
+    ESP_LOGI(TAG, "PSRAM support disabled in sdkconfig");
+#endif
 
     // 2) PSRAM-Heap-Statistik
     size_t psram_total = heap_caps_get_total_size(MALLOC_CAP_SPIRAM);

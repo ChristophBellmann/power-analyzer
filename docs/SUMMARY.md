@@ -10,4 +10,5 @@
 * [Data recording](data-recording.md)
 * [Build & installation](build-and-installation.md)
 * [Technical documents](technical-documents.md)
+* [Spectrum Analyzer migration](spectrum-analyzer-migration.md)
 * [Project & license](project-and-license.md)

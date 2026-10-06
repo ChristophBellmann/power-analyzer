@@ -1,1 +1,5 @@
-pandoc --from markdown --template eisvogel --filter pandoc-latex-environment --filter pandoc-include --listing --citeproc -o ./../documentation.pdf doc.md
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")"
+mkdir -p ../../../build/spectrum-docs
+pandoc --from markdown --template ./eisvogel.latex --filter pandoc-latex-environment --filter pandoc-include --listings --citeproc -o ../../../build/spectrum-docs/documentation.pdf doc.md

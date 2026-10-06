@@ -2,7 +2,6 @@
 
 Ein ESP32-basiertes Messgerät zur Erfassung von harmonischen Oberwellen und Netzrückwirkungen in Echtzeit.
 
-![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-ESP32-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
@@ -103,3 +102,21 @@ with open("data.bin", "rb") as f:
 ## Lizenz
 
 APACHE2 – siehe [LICENSE](LICENSE)
+
+## Spectrum Analyzer integriert
+
+Die Audio-/Frequenzvariante wird als separate Anwendung unter
+[`firmware/spectrum-analyzer`](firmware/spectrum-analyzer/README.md) gepflegt.
+Web-UIs, beide Notebooks, CAD-Modelle, Bilder und historische Dokumentation sind
+im selben Repository enthalten. Die Anwendungen teilen einen fest gepinnten
+ESP-DSP-Fork als Submodul:
+
+```sh
+git submodule update --init --recursive
+```
+
+- [GitBook-Dokumentation](https://renewable-energy-design.gitbook.io/esp32-power-analyzer/)
+- [Spectrum Analyzer](docs/spectrum-analyzer.md)
+- [Migration und Archivierungsnachweis](docs/spectrum-analyzer-migration.md)
+
+CAD-Dateien behalten ihre ursprünglichen Creative-Commons-Lizenzen und Urheberangaben.

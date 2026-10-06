@@ -1,7 +1,7 @@
 !include-header ./article.yaml
 
-!include ./../01-chapter/101-article-begin.md
+!include ../../archive/spectrum-analyzer/article-introduction.md
 
-!include ./../01-chapter/02-concept.md
+!include ../../archive/spectrum-analyzer/02-concept.md
 
-!include ./../01-chapter/102-article-end.md
+!include ../../archive/spectrum-analyzer/article-conclusion.md
