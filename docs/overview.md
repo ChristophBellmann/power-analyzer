@@ -21,3 +21,14 @@ The current firmware exposes oscilloscope, harmonic-analysis and recorder functi
 The project explores a low-cost embedded approach to remote measurement and signal analysis. It is particularly useful as an engineering platform for experimenting with ADC acquisition, FFT processing, harmonic analysis and browser-based visualization.
 
 > **Safety:** Work on mains-connected measurement hardware requires appropriate isolation, protection and electrical competence. The project documentation is not a substitute for a safety assessment or certified measurement equipment.
+
+## Audio/frequency variant
+
+The [Spectrum Analyzer](spectrum-analyzer.md) uses the same acquisition → FFT →
+browser pattern for audio/frequency inspection. It is a separate firmware
+application in the canonical repository, with three dedicated browser UIs and
+WAV download. Firmware, analysis notebooks, CAD and historical documentation are
+fully integrated; see the [migration record](spectrum-analyzer-migration.md).
+
+Both variants share one pinned ESP-DSP submodule. Choose a variant using the
+[build instructions](build-and-installation.md); each packages its own frontend.
