@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Fast Detect - Main</title>
+  <style>
+    /* Navigation Bar */
+    header {
+      background-color: #333;
+      padding: 10px;
+      text-align: center;
+    }
+    header nav a {
+      color: #fff;
+      margin: 0 15px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    header nav a:hover {
+      text-decoration: underline;
+    }
+    .frequency-box {
+      display: block;
+      width: 300px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 3px solid #000;
+      text-align: center;
+      background-color: #f0f0f0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .navigate-button {
+      display: block;
+      width: 150px;
+      margin: 30px auto;
+      padding: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      text-align: center;
+      text-decoration: none;
+    }
+    .navigate-button:hover {
+      background-color: #0056b3;
+    }
+    /* Audio Player and Download Link */
+    .audio-player {
+      display: block;
+      width: 80%;
+      max-width: 500px;
+      margin: 20px auto;
+    }
+    .download-link {
+      display: block;
+      margin: 10px auto;
+      font-size: 16px;
+      text-decoration: none;
+      color: #007BFF;
+    }
+    .download-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">Index</a>
+      <a href="/fastdetect">Trend Chart</a>
+      <a href="/monitoring">Monitoring</a>
+      <a href="/wav">WAV</a>
+    </nav>
+  </header>
+  <h1 style="text-align: center;">Fast Detect - Main Frequency</h1>
+  <div id="frequencyBox" class="frequency-box">
+    Waiting for data...
+  </div>
+  <!-- Audio Player for WAV file -->
+  <audio class="audio-player" controls>
+    <source src="/wav" type="audio/wav">
+    Your browser does not support the audio element.
+  </audio>
+  <!-- Download Link for WAV file -->
+  <a class="download-link" href="/wav" download="adc_data.wav">Download WAV File</a>
+  <a href="/fastdetect" class="navigate-button">View Trend Chart</a>
+  <script>
+    let ws;
+    let intervalId;
+    function initWS() {
+      const loc = window.location;
+      const wsProtocol = (loc.protocol === 'https:') ? 'wss://' : 'ws://';
+      const wsUrl = wsProtocol + loc.host + '/ws';
+      ws = new WebSocket(wsUrl);
+      ws.onopen = () => {
+        console.log('WebSocket connection opened.');
+        intervalId = setInterval(() => {
+          ws.send('getdata');
+        }, 100);
+      };
+      ws.onmessage = (evt) => {
+        try {
+          const data = JSON.parse(evt.data);
+          updateFrequencyBox(data.chunks);
+        } catch (err) {
+          console.error('JSON parse error:', err);
+        }
+      };
+      ws.onclose = () => {
+        console.log('WebSocket connection closed.');
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        setTimeout(initWS, 2000);
+      };
+    }
+    function updateFrequencyBox(chunks) {
+      const freqBox = document.getElementById('frequencyBox');
+      if (!chunks || chunks.length === 0) {
+        freqBox.textContent = 'No Data Available';
+        return;
+      }
+      const mainFreq = chunks[0].freq.toFixed(2);
+      const magnitude = chunks[0].trend;
+      freqBox.innerHTML = `
+        <div>Main Frequency: ${mainFreq} Hz</div>
+        <div>Trend: ${magnitude}</div>
+      `;
+    }
+    window.onload = initWS;
+  </script>
+</body>
+</html>

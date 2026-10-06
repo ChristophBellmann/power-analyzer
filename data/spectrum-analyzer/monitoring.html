@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Monitoring - Frequency Gauge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Navigation Bar */
+    header {
+      background-color: #333;
+      padding: 10px;
+      text-align: center;
+    }
+    header nav a {
+      color: #fff;
+      margin: 0 15px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    header nav a:hover {
+      text-decoration: underline;
+    }
+    /* Basis-Styles */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    /* Anzeige der Hauptfrequenz */
+    .frequency-display {
+      display: inline-block;
+      padding: 10px 20px;
+      margin-bottom: 20px;
+      border: 2px solid #000;
+      background-color: #e0e0e0;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    /* Input-Container: */
+    .input-container {
+      margin: 20px auto;
+      max-width: 800px;
+      text-align: left;
+    }
+    /* Wir gruppieren die Felder in zwei Zeilen */
+    .input-container .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .input-container .row .col {
+      flex: 1;
+      margin: 0 5px;
+    }
+    .input-container label {
+      display: block;
+      margin: 5px 0 3px;
+      font-weight: bold;
+    }
+    .input-container input {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    /* Gauge Container */
+    .gauge-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      border-radius: 50%;
+      /* Hintergrund: 270°-Bogen, beginnend bei 135° (links) bis 405° (entspricht 45°) */
+      background: conic-gradient(from 135deg, #ddd 0deg, #ddd 270deg, #fff 270deg, #fff 360deg);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    /* Historische Sektoren (Chunks) */
+    #historySectors {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 300px;
+      pointer-events: none;
+    }
+    .history-sector {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      clip-path: polygon(50% 50%, 50% 0%, 55% 0%);
+      /* Die Farbe wird per JS gesetzt, abhängig vom Trend */
+    }
+    /* Container für Gauge-Zahlen (Labels) */
+    #gaugeNumbers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 300px;
+      pointer-events: none;
+    }
+    .gauge-number {
+      position: absolute;
+      font-size: 12px;
+      color: #333;
+      font-weight: bold;
+    }
+    /* Pointer (Zeiger) – so positioniert, dass seine untere Mitte exakt in der Mitte liegt */
+    .pointer {
+      position: absolute;
+      width: 4px;
+      height: 120px;
+      background: #000;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom center;
+      transform: translateX(-50%) rotate(0deg);
+      transition: transform 0.5s ease-in-out;
+    }
+    /* Center Dot */
+    .center-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #000;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    /* Gauge Label */
+    .gauge-label {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      bottom: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+    /* Betriebs-Sekunden und Pumped Water Container */
+    .operation-container {
+      margin: 20px auto;
+      max-width: 300px;
+      border: 2px solid #000;
+      padding: 10px;
+      background-color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: left;
+    }
+    .operation-container label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .operation-container input {
+      width: 100%;
+      padding: 5px;
+      font-size: 16px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">Index</a>
+      <a href="/fastdetect">Trend Chart</a>
+      <a href="/monitoring">Monitoring</a>
+      <a href="/wav">WAV</a>
+    </nav>
+  </header>
+  
+  <!-- Display Container: Hauptfrequenz, Betriebs-Sekunden, Pumped Water -->
+  <div class="display-container">
+    <div id="freqDisplay" class="frequency-display">
+      Main Frequency: -- Hz
+    </div>
+    <div id="opSecondsDisplay" class="frequency-display">
+      Operating Seconds: 0 s
+    </div>
+    <div id="pumpedWaterDisplay" class="frequency-display">
+      Pumped Water: 0.00 l
+    </div>
+  </div>
+  
+  <!-- Input Container -->
+  <div class="input-container">
+    <!-- Erste Zeile: Operating Range und Water Factor -->
+    <div class="row">
+      <div class="col">
+        <label for="opLowerFreq">Lower Frequency (Hz):</label>
+        <input type="number" id="opLowerFreq" placeholder="e.g. 1000">
+      </div>
+      <div class="col">
+        <label for="opUpperFreq">Upper Frequency (Hz):</label>
+        <input type="number" id="opUpperFreq" placeholder="e.g. 2000">
+      </div>
+      <div class="col">
+        <label for="waterFactor">Water Factor:</label>
+        <input type="number" id="waterFactor" placeholder="Enter factor" value="0.25">
+      </div>
+    </div>
+    <!-- Zweite Zeile: Gauge Scale Range -->
+    <div class="row">
+      <div class="col">
+        <label for="scaleGaugeLowerFreq">Scale Gauge Lower Frequency (Hz):</label>
+        <input type="number" id="scaleGaugeLowerFreq" placeholder="e.g. 0">
+      </div>
+      <div class="col">
+        <label for="scaleGaugeUpperFreq">Scale Gauge Upper Frequency (Hz):</label>
+        <input type="number" id="scaleGaugeUpperFreq" placeholder="e.g. 8000">
+      </div>
+    </div>
+  </div>
+  
+  <!-- Gauge Container -->
+  <div class="gauge-container" id="gaugeContainer">
+    <!-- Historische Sektoren (Chunks) -->
+    <div id="historySectors"></div>
+    <!-- Container für Gauge-Zahlen -->
+    <div id="gaugeNumbers"></div>
+    <!-- Pointer -->
+    <div class="pointer" id="pointer"></div>
+    <!-- Center Dot -->
+    <div class="center-dot"></div>
+    <!-- Gauge Label -->
+    <div class="gauge-label">RPM</div>
+  </div>
+  
+  <script>
+    // Globale Variablen – werden per WebSocket aktualisiert
+    let mainFrequency = 0;
+    let chunks = []; // Erwartet ein Array mit 20 Einträgen (Historie)
+    let operationSeconds = 0;
+    const NUM_CHUNKS = 20;
+    const TIME_PER_BAR_MS = 92.8; // ca. 92.8 ms pro Datenpaket
+
+    // Definition der Gauge-Skalierungsparameter:
+    // Wir möchten einen 270°-Bogen darstellen, wobei:
+    // gaugeStart = 135° (linker Endpunkt) und gaugeSweep = 270°.
+    const gaugeSweep = 270;
+    const gaugeStart = 135;
+
+    /**
+     * Aktualisiert den Display-Bereich (Hauptfrequenz, Betriebs-Sekunden, Pumped Water)
+     */
+    function updateDisplay() {
+      document.getElementById('freqDisplay').innerText = `Main Frequency: ${mainFrequency.toFixed(2)} Hz`;
+      document.getElementById('opSecondsDisplay').innerText = `Operating Seconds: ${operationSeconds} s`;
+      const waterFactor = parseFloat(document.getElementById('waterFactor').value) || 0.25;
+      const pumpedWater = operationSeconds * waterFactor;
+      document.getElementById('pumpedWaterDisplay').innerText = `Pumped Water: ${pumpedWater.toFixed(2)} l`;
+    }
+
+    /**
+     * Aktualisiert den Zeiger (Pointer), die historischen Sektoren (Chunks) und die Gauge-Zahlen (Labels).
+     * Dabei unterscheiden wir zwischen:
+     * - Operating Range (für die Betriebssekunden): definiert durch opLowerFreq und opUpperFreq.
+     * - Gauge Scale Range (für die Darstellung der Skala): definiert durch scaleGaugeLowerFreq und scaleGaugeUpperFreq.
+     */
+    function updateMonitoringGauge() {
+      // Operating Range
+      const opLowerInput = document.getElementById('opLowerFreq').value;
+      const opUpperInput = document.getElementById('opUpperFreq').value;
+      const opMin = opLowerInput ? parseFloat(opLowerInput) : 0;
+      const opMax = opUpperInput ? parseFloat(opUpperInput) : 8000;
+      
+      // Gauge Scale Range
+      const scaleLowerInput = document.getElementById('scaleGaugeLowerFreq').value;
+      const scaleUpperInput = document.getElementById('scaleGaugeUpperFreq').value;
+      const gaugeMin = scaleLowerInput ? parseFloat(scaleLowerInput) : 0;
+      const gaugeMax = scaleUpperInput ? parseFloat(scaleUpperInput) : 8000;
+      
+      // Berechne den Bruchteil (fraction) in der Gauge Scale Range
+      const fraction = (mainFrequency - gaugeMin) / (gaugeMax - gaugeMin);
+      const gaugeAngle = gaugeStart + fraction * gaugeSweep;
+      // Da das Pointer-Element im Ausgangszustand (ohne Rotation) nach oben zeigt (270° im Standard),
+      // verwenden wir pointerRotation = gaugeAngle - 270.
+      const pointerRotation = gaugeAngle - 270;
+      document.getElementById('pointer').style.transform = `translateX(-50%) rotate(${pointerRotation}deg)`;
+      
+      // Aktualisiere die historischen Sektoren (Chunks) und die Gauge-Zahlen (Labels) in der Gauge Scale Range
+      updateHistorySectors(gaugeMin, gaugeMax);
+      updateGaugeNumbers(gaugeMin, gaugeMax);
+      
+      updateDisplay();
+    }
+
+    /**
+     * Aktualisiert die 20 historischen Sektoren (Chunks)
+     * Für einen Frequenzwert gilt:
+     *   gaugeAngle = gaugeStart + ((freq – minFreq) / (maxFreq – minFreq)) * gaugeSweep,
+     * und der Rotationswert ist gaugeAngle - 270.
+     * Die Farbe wird abhängig vom Trend gesetzt:
+     * - "rise": Grün (#28a745)
+     * - "fall": Rot (#dc3545)
+     * - "same": Blau (#007BFF)
+     */
+    function updateHistorySectors(minFreq, maxFreq) {
+      const container = document.getElementById('historySectors');
+      container.innerHTML = "";
+      for (let i = 0; i < NUM_CHUNKS; i++) {
+        let chunk = (i < chunks.length) ? chunks[i] : { freq: 0, trend: "same" };
+        const div = document.createElement("div");
+        div.className = "history-sector";
+        const fractionChunk = (chunk.freq - minFreq) / (maxFreq - minFreq);
+        const gaugeAngle = gaugeStart + fractionChunk * gaugeSweep;
+        // Rotation: gaugeAngle - 270
+        div.style.transform = `rotate(${gaugeAngle - 270}deg)`;
+        let color;
+        if (chunk.trend === "rise") {
+          color = "#28a745";
+        } else if (chunk.trend === "fall") {
+          color = "#dc3545";
+        } else {
+          color = "#007BFF";
+        }
+        div.style.backgroundColor = color;
+        const opacity = 1 - (i / (NUM_CHUNKS - 1)) * 0.7;
+        div.style.opacity = opacity;
+        container.appendChild(div);
+      }
+    }
+
+    /**
+     * Positioniert 7 Gauge-Zahlen (Labels) entlang des Skalenbogens.
+     * Hier wird direkt mit dem Standard-Winkelsystem (0° = rechts) gerechnet:
+     *   gaugeAngle = gaugeStart + (i / (numLabels - 1)) * gaugeSweep.
+     */
+    function updateGaugeNumbers(minFreq, maxFreq) {
+      const container = document.getElementById('gaugeNumbers');
+      container.innerHTML = "";
+      const centerX = 150;
+      const centerY = 150;
+      const radius = 130;
+      const numLabels = 7;
+      for (let i = 0; i < numLabels; i++) {
+        const fractionLabel = i / (numLabels - 1);
+        const gaugeAngle = gaugeStart + fractionLabel * gaugeSweep;
+        const angleRad = gaugeAngle * Math.PI / 180;
+        const labelX = centerX + radius * Math.cos(angleRad) - 10;
+        const labelY = centerY + radius * Math.sin(angleRad) - 8;
+        const freq = minFreq + fractionLabel * (maxFreq - minFreq);
+        const span = document.createElement("span");
+        span.className = "gauge-number";
+        span.innerText = Math.round(freq);
+        span.style.left = labelX + "px";
+        span.style.top = labelY + "px";
+        container.appendChild(span);
+      }
+    }
+
+    /**
+     * Initialisiert die WebSocket-Verbindung und verarbeitet eingehende Daten.
+     * Erwartetes JSON-Format: {"chunks": [ {"freq": <Wert>, "trend": "..."}, ... ]}
+     */
+    function initWS() {
+      const loc = window.location;
+      const wsProtocol = (loc.protocol === 'https:') ? 'wss://' : 'ws://';
+      const wsUrl = wsProtocol + loc.host + '/ws';
+      const ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        console.log('WebSocket connection opened for Monitoring.');
+        setInterval(() => {
+          ws.send('getdata');
+        }, 100);
+      };
+
+      ws.onmessage = (evt) => {
+        try {
+          const data = JSON.parse(evt.data);
+          if (data.chunks && Array.isArray(data.chunks) && data.chunks.length > 0) {
+            chunks = data.chunks;
+            mainFrequency = chunks[0].freq;
+          }
+          updateMonitoringGauge();
+        } catch (err) {
+          console.error('JSON parse error:', err, 'Data received:', evt.data);
+        }
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket connection closed for Monitoring. Reconnecting in 2 seconds...');
+        setTimeout(initWS, 2000);
+      };
+    }
+
+    // Zähler für Betriebssekunden und Berechnung der gepumpten Wassermenge:
+    setInterval(() => {
+      const lowerInput = document.getElementById('opLowerFreq').value;
+      const upperInput = document.getElementById('opUpperFreq').value;
+      if (lowerInput === "" || upperInput === "") return;
+      const lowerBound = parseFloat(lowerInput);
+      const upperBound = parseFloat(upperInput);
+      if (mainFrequency >= lowerBound && mainFrequency <= upperBound) {
+        operationSeconds++;
+      }
+      document.getElementById('opSecondsDisplay').innerText = `Operating Seconds: ${operationSeconds} s`;
+      const waterFactor = parseFloat(document.getElementById('waterFactor').value) || 0.25;
+      const pumpedWater = operationSeconds * waterFactor;
+      document.getElementById('pumpedWaterDisplay').innerText = `Pumped Water: ${pumpedWater.toFixed(2)} l`;
+    }, 1000);
+
+    // Aktualisierung per Enter in den Eingabefeldern
+    function addEnterListener(id) {
+      const input = document.getElementById(id);
+      if (input) {
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            updateMonitoringGauge();
+          }
+        });
+      }
+    }
+    window.onload = () => {
+      initWS();
+      updateMonitoringGauge();
+      addEnterListener("opLowerFreq");
+      addEnterListener("opUpperFreq");
+      addEnterListener("waterFactor");
+      addEnterListener("scaleGaugeLowerFreq");
+      addEnterListener("scaleGaugeUpperFreq");
+    };
+  </script>
+</body>
+</html>

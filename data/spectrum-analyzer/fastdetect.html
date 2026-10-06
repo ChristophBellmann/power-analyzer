@@ -1,0 +1,428 @@
+<!-- fastdetect.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Fast Detect - Trend Chart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Navigation Bar */
+    header {
+      background-color: #333;
+      padding: 10px;
+      text-align: center;
+    }
+    header nav a {
+      color: #fff;
+      margin: 0 15px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    header nav a:hover {
+      text-decoration: underline;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Style for the main frequency box */
+    .frequency-box {
+      display: inline-block;
+      width: 300px;
+      margin: 20px auto;
+      padding: 15px;
+      border: 2px solid #000;
+      text-align: center;
+      background-color: #e0e0e0;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    /* Container for the trend chart */
+    #trendContainer {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    /* Style for the bar chart */
+    #chunkBars {
+      display: flex;
+      align-items: flex-end;
+      height: 400px;
+      border-left: 2px solid #333;
+      border-bottom: 2px solid #333;
+      position: relative;
+      margin-top: 20px;
+      overflow: hidden;
+      background-color: #f9f9f9;
+    }
+
+    .bar {
+      width: 30px;
+      margin: 0 5px;
+      background-color: #007BFF;
+      transition: height 0.5s ease-in-out;
+      position: relative;
+      cursor: pointer;
+    }
+
+    /* Axis labels */
+    .x-axis-label, .y-axis-label {
+      position: absolute;
+      font-size: 12px;
+      color: #333;
+    }
+
+    .y-axis-label {
+      left: -60px;
+      transform: rotate(-90deg);
+      transform-origin: left top;
+      white-space: nowrap;
+    }
+
+    /* Container for X-axis labels */
+    #xAxisContainer {
+      position: relative;
+      width: 100%;
+      height: 40px;
+      margin-top: 10px;
+    }
+
+    /* Container for Y-axis labels */
+    #yAxisContainer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-sizing: border-box;
+    }
+
+    /* Container for the bars */
+    #barsContainer {
+      margin-left: 60px;
+      width: calc(100% - 60px);
+      overflow-x: auto;
+    }
+
+    /* Tooltip styling */
+    .tooltip {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      pointer-events: none;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    /* Y-scale input styling */
+    #yScaleContainer {
+      margin-top: 20px;
+    }
+
+    #yScaleInput {
+      width: 100px;
+      padding: 5px;
+      font-size: 14px;
+      margin-left: 10px;
+    }
+
+    #yScaleButton, #resetYScaleButton {
+      padding: 5px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    /* Vertical division lines */
+    .vertical-line {
+      position: absolute;
+      top: 0;
+      width: 1px;
+      background-color: #ccc;
+    }
+
+    /* Horizontal division lines */
+    .horizontal-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: #ccc;
+    }
+
+    /* Legend styling */
+    #legend {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    #legend span {
+      display: inline-block;
+      margin-right: 15px;
+      vertical-align: middle;
+    }
+
+    #legend .legend-bar {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: #007BFF;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    /* X-axis markers and labels */
+    .x-axis-marker {
+      position: absolute;
+      bottom: 0;
+      width: 1px;
+      height: 10px;
+      background-color: #ccc;
+    }
+
+    .x-axis-label {
+      position: absolute;
+      top: 15px;
+      font-size: 12px;
+      color: #333;
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">Index</a>
+      <a href="/fastdetect">Trend Chart</a>
+      <a href="/monitoring">Monitoring</a>
+      <a href="/wav">WAV</a>
+    </nav>
+  </header>
+  <h1>Fast Detect - Frequency Trend Chart</h1>
+  <div id="frequencyBox" class="frequency-box">
+    Waiting for data...
+  </div>
+  <div id="trendContainer">
+    <div id="yScaleContainer">
+      <label for="yScaleInput">Set Y-Scale (Hz):</label>
+      <input type="number" id="yScaleInput" placeholder="0-20000">
+      <button id="yScaleButton">Set Scale</button>
+      <button id="resetYScaleButton">Reset Scale</button>
+    </div>
+    <div id="chartWrapper" style="position: relative; width: 100%; max-width: 1200px;">
+      <div id="yAxisContainer"></div>
+      <div id="barsContainer">
+        <div id="chunkBars"></div>
+      </div>
+      <div id="xAxisContainer"></div>
+    </div>
+    <div id="tooltip" class="tooltip"></div>
+    <div id="legend">
+      <span><div class="legend-bar"></div>69,6 ms per bar, polling every 100 ms</span>
+    </div>
+    <a href="/" class="navigate-button">Go to Main Frequency Page</a>
+  </div>
+  <script>
+    let ws;
+    let intervalId;
+    let yScale = 0; // 0 = Auto-Skalierung
+    const tooltip = document.getElementById('tooltip');
+
+    // Konstanten aus der Backend-Konfiguration
+    const NUM_CHUNKS = 20; // Muss mit config.h übereinstimmen
+    const TIME_PER_BAR_MS = 69.6; // 3 * (1024/44100) ≈ 92.8 ms
+    const BARS_PER_STEP = 4; // Anzeige alle 4 Balken
+
+    function initWS() {
+      const loc = window.location;
+      const wsProtocol = (loc.protocol === 'https:') ? 'wss://' : 'ws://';
+      const wsUrl = wsProtocol + loc.host + '/ws';
+      ws = new WebSocket(wsUrl);
+      ws.onopen = () => {
+        console.log('WebSocket connection opened.');
+        intervalId = setInterval(() => {
+          ws.send('getdata');
+        }, 100);
+      };
+      ws.onmessage = (evt) => {
+        try {
+          const data = JSON.parse(evt.data);
+          updateFrequencyBox(data.chunks);
+          updateTrendChart(data.chunks);
+        } catch (err) {
+          console.error('JSON parse error:', err, 'Data received:', evt.data);
+          document.getElementById('frequencyBox').textContent = 'Error loading data.';
+        }
+      };
+      ws.onclose = () => {
+        console.log('WebSocket connection closed.');
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        setTimeout(initWS, 2000);
+      };
+    }
+
+    function updateFrequencyBox(chunks) {
+      const freqBox = document.getElementById('frequencyBox');
+      if (!chunks || chunks.length === 0) {
+        freqBox.textContent = 'No Data Available';
+        return;
+      }
+      const latestChunk = chunks[0];
+      const mainFreq = latestChunk.freq.toFixed(2);
+      const trend = latestChunk.trend;
+      freqBox.innerHTML = `
+        <div>Main Frequency: ${mainFreq} Hz</div>
+        <div>Trend: ${trend}</div>
+      `;
+    }
+
+    function updateTrendChart(chunks) {
+      const barsDiv = document.getElementById('chunkBars');
+      const xAxisDiv = document.getElementById('xAxisContainer');
+      const yAxisDiv = document.getElementById('yAxisContainer');
+
+      // Vorhandene Elemente entfernen
+      barsDiv.innerHTML = '';
+      xAxisDiv.innerHTML = '';
+      yAxisDiv.innerHTML = '';
+
+      if (!chunks || chunks.length === 0) {
+        return;
+      }
+
+      const numChunks = chunks.length;
+      const barsPerStep = BARS_PER_STEP;
+      const totalSteps = Math.floor(numChunks / barsPerStep) + 1;
+      const barWidth = 30;
+      const barMargin = 5;
+      const totalBarWidth = (barWidth + barMargin * 2) * numChunks;
+      barsDiv.style.width = `${totalBarWidth}px`;
+
+      // Frequenzbereich bestimmen
+      const minFreq = 20;
+      const maxFreqUser = yScale > 0 ? yScale : Math.max(...chunks.map(ch => ch.freq));
+      const maxFreq = Math.min(maxFreqUser, 20000);
+
+      // Y-Achsen-Beschriftungen
+      const yLabels = [
+      { label: `${maxFreq.toFixed(2)} Hz`, position: '0%' },
+      { label: `${(0.75 * maxFreq).toFixed(2)} Hz`, position: '25%' },
+      { label: `${(0.5 * maxFreq).toFixed(2)} Hz`, position: '50%' },
+      { label: `${(0.25 * maxFreq).toFixed(2)} Hz`, position: '75%' },
+      { label: `0.00 Hz`, position: '100%' }
+      ];
+      yLabels.forEach(yLabel => {
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'y-axis-label';
+        labelDiv.style.top = yLabel.position;
+        labelDiv.textContent = yLabel.label;
+        yAxisDiv.appendChild(labelDiv);
+        const hLine = document.createElement('div');
+        hLine.className = 'horizontal-line';
+        hLine.style.top = yLabel.position;
+        yAxisDiv.appendChild(hLine);
+      });
+
+
+      // X-Achsen-Marker und Beschriftungen alle 4 Balken
+      for (let step = 0; step < totalSteps; step++) {
+        const barIndex = step * barsPerStep;
+        if (barIndex >= numChunks) break;
+        const leftPercent = (barIndex / numChunks) * 100;
+        const marker = document.createElement('div');
+        marker.className = 'x-axis-marker';
+        marker.style.left = `${leftPercent}%`;
+        xAxisDiv.appendChild(marker);
+        const label = document.createElement('div');
+        label.className = 'x-axis-label';
+        const timeOffsetMs = -(barIndex * TIME_PER_BAR_MS);
+        label.style.left = `${leftPercent}%`;
+        label.textContent = `${timeOffsetMs} ms`;
+        xAxisDiv.appendChild(label);
+      }
+
+      // Balken erzeugen
+      chunks.forEach((ch, index) => {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        let barHeight = 0;
+        if (maxFreq > 0) {
+          barHeight = (ch.freq / maxFreq) * 100;
+        }
+        bar.style.height = `${barHeight}%`;
+        if (ch.trend === "rise") {
+          bar.style.backgroundColor = "#28a745";
+        } else if (ch.trend === "fall") {
+          bar.style.backgroundColor = "#dc3545";
+        } else {
+          bar.style.backgroundColor = "#007BFF";
+        }
+        bar.addEventListener('mousemove', (e) => {
+          let tooltipX = e.pageX + 10;
+          let tooltipY = e.pageY + 10;
+          const tooltipWidth = tooltip.offsetWidth;
+          const tooltipHeight = tooltip.offsetHeight;
+          if (tooltipX + tooltipWidth > window.innerWidth) {
+            tooltipX = e.pageX - tooltipWidth - 10;
+          }
+          if (tooltipY + tooltipHeight > window.innerHeight) {
+            tooltipY = e.pageY - tooltipHeight - 10;
+          }
+          tooltip.style.left = `${tooltipX}px`;
+          tooltip.style.top = `${tooltipY}px`;
+          tooltip.textContent = `Frequency: ${ch.freq.toFixed(2)} Hz`;
+          tooltip.style.opacity = 1;
+        });
+        bar.addEventListener('mouseout', () => {
+          tooltip.style.opacity = 0;
+        });
+        barsDiv.appendChild(bar);
+      });
+    }
+
+    function setYScale() {
+      const yScaleInput = document.getElementById('yScaleInput').value;
+      const yScaleValue = parseFloat(yScaleInput);
+      if (!isNaN(yScaleValue) && yScaleValue >= 0 && yScaleValue <= 20000) {
+        yScale = yScaleValue;
+      } else {
+        yScale = 0;
+      }
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send('getdata');
+      }
+    }
+
+    function resetYScale() {
+      yScale = 0;
+      document.getElementById('yScaleInput').value = '';
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send('getdata');
+      }
+    }
+
+    document.getElementById('yScaleButton').addEventListener('click', setYScale);
+    document.getElementById('resetYScaleButton').addEventListener('click', resetYScale);
+    window.onload = initWS;
+  </script>
+</body>
+</html>
