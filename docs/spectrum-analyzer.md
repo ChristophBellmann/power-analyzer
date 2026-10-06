@@ -1,12 +1,20 @@
 # Spectrum Analyzer
 
-The **ESP32 Spectrum Analyzer** is an earlier, closely related project stage that focuses on real-time signal and audio-frequency analysis.
+The **ESP32 Spectrum Analyzer** is the signal-analysis branch of this repository. It focuses on real-time audio/frequency analysis and is maintained alongside the electrical Power Analyzer as part of the same embedded measurement project family.
 
-Its original implementation is retained in the separate `SpectrumAnalyzer` repository for development history, while this GitBook is the canonical documentation location for the combined measurement-project family.
+## Integrated project structure
+
+The Spectrum Analyzer material is organized by function rather than kept as a legacy dump:
+
+- `firmware/spectrum-analyzer/` — ESP32 firmware variant and build configuration
+- `data/spectrum-analyzer/` — browser interfaces for live monitoring and fast detection
+- `analysis/spectrum-analyzer/` — FFT/audio analysis notebooks and supporting calculations
+- `hardware/cad/spectrum-analyzer/` — enclosure and microphone CAD assets
+- `docs/assets/spectrum-analyzer/` — interface and hardware reference images
+
+The Power Analyzer remains the current electrical-measurement implementation under the repository's normal `main/`, `include/` and `data/` structure.
 
 ## Processing chain
-
-The Spectrum Analyzer follows this embedded pipeline:
 
 ```text
 ESP32 ADC
@@ -18,22 +26,14 @@ ESP32 ADC
 → browser visualization
 ```
 
-The original project documents a 1024-sample acquisition/FFT workflow and browser interfaces for spectrum/history monitoring, an RPM-style display and short WAV sample playback.
+The Spectrum Analyzer uses a 1024-sample FFT workflow and browser interfaces for spectrum/history monitoring, frequency detection and signal inspection.
 
 ## Relationship to the Power Analyzer
 
-Both projects share the same core engineering pattern: acquire analogue signals continuously on an ESP32, process them locally, and expose the results through a web interface.
+Both variants share the same engineering pattern: acquire analogue signals continuously on an ESP32, process them locally, and expose results through a web interface.
 
-The later Power Analyzer applies that architecture to electrical measurements and extends the focus toward:
+The Power Analyzer extends this architecture toward voltage/current waveforms, harmonic analysis, total harmonic distortion and measurement recording. Keeping both variants in one repository preserves the development path while avoiding two overlapping portfolio projects.
 
-- voltage and current waveforms,
-- harmonic analysis,
-- total harmonic distortion,
-- measurement recording,
-- a more structured electrical measurement workflow.
+## Dependency handling
 
-For the portfolio, the Spectrum Analyzer is therefore treated as a predecessor and signal-processing branch of the Power Analyzer rather than as a second standalone product.
-
-## Source history
-
-The original implementation remains available in `ChristophBellmann/SpectrumAnalyzer`. Keeping that repository preserves code and commit history; new portfolio documentation should be maintained here in the Power Analyzer GitBook.
+Third-party ESP-DSP sources are not duplicated specifically for the Spectrum Analyzer. The repository already contains the ESP-DSP component used by the project family.
