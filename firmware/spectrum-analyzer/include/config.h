@@ -35,8 +35,8 @@
 // ---------------------
 // Wi-Fi Configuration
 // ---------------------
-#define WIFI_SSID "Pixel_cb"        // Wi-Fi SSID
-#define WIFI_PASS "Lassmichrein!"   // Wi-Fi Password
+#define WIFI_SSID "YOUR_WIFI_SSID"  // Wi-Fi SSID
+#define WIFI_PASS "YOUR_WIFI_PASSWORD" // Wi-Fi Password
 
 // ---------------------
 // Buffer and Task Configuration
