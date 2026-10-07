@@ -120,3 +120,21 @@ git submodule update --init --recursive
 - [Migration und Archivierungsnachweis](docs/spectrum-analyzer-migration.md)
 
 CAD-Dateien behalten ihre ursprünglichen Creative-Commons-Lizenzen und Urheberangaben.
+
+## GitBook-Quelle und Pflege
+
+Die [veröffentlichte Projektdokumentation](https://renewable-energy-design.gitbook.io/esp32-power-analyzer/) wird per GitSync aus
+`ChristophBellmann/power-analyzer` auf `main` gepflegt. Die Seitentexte liegen in
+[`docs/`](docs/README.md), das Inhaltsverzeichnis in
+[`docs/SUMMARY.md`](docs/SUMMARY.md). `.gitbook.yaml` und
+`gitbook-docs.yaml` verweisen auf denselben Inhaltsordner.
+
+Bei Änderungen an Funktionen, Installation, Architektur, Datenformaten,
+Prüfständen oder Repository-Zuordnungen die betroffenen Seiten im selben
+Arbeitsgang aktualisieren und neue Seiten in `SUMMARY.md` eintragen. Nach
+Commit und Push auf `main` die Veröffentlichung in GitBook prüfen; GitSync
+läuft asynchron. Historische Ergebnisse und geplante Funktionen ausdrücklich
+kennzeichnen. In Thinkthing dokumentieren `docs/gitbooks.md` und
+`EXPERIENCE.md` den gemeinsamen Pflegeablauf;
+`python3 scripts/check_gitbook_sync.py --project power-analyzer`
+prüft dort den veröffentlichten Text gegen frische GitHub-Quellen.

@@ -1,8 +1,8 @@
 # Spectrum Analyzer migration
 
 `ChristophBellmann/power-analyzer` is the canonical repository for both ESP32
-measurement applications. `SpectrumAnalyzer` can retain its Git history as a
-read-only predecessor once this migration is committed and published.
+measurement applications. `SpectrumAnalyzer` is archived on GitHub and retains its Git history as a
+read-only predecessor. Further changes belong in `power-analyzer`.
 
 ## Audited source
 
@@ -82,4 +82,5 @@ step; this migration preserves history without rewriting the predecessor tree.
 The electrical frontend now lives in `data/power-analyzer/`, separate from
 `data/spectrum-analyzer/`. This prevents unrelated Spectrum files entering the
 electrical SPIFFS image and exceeding SPIFFS filename limits. Board interaction
-and GitBook's live rendering have not been tested by these build checks.
+was not tested by these build checks. GitBook publication was checked separately
+on 2026-10-07 against all 12 maintained source pages.
