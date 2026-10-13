@@ -1,5 +1,7 @@
 # ESP32 Power Analyzer
 
+**Dokumentation:** [Handbuch](https://renewable-energy-design.gitbook.io/renewable-energy-design-docs/uebersicht/esp32-power-analyzer/) · [Alle REDesign-Handbücher](https://renewable-energy-design.gitbook.io/renewable-energy-design-docs/) · [redesign.network](https://redesign.network/)
+
 Ein ESP32-basiertes Messgerät zur Erfassung von harmonischen Oberwellen und Netzrückwirkungen in Echtzeit.
 
 ![Platform](https://img.shields.io/badge/platform-ESP32-blue)
@@ -115,7 +117,7 @@ ESP-DSP-Fork als Submodul:
 git submodule update --init --recursive
 ```
 
-- [GitBook-Dokumentation](https://renewable-energy-design.gitbook.io/esp32-power-analyzer/)
+- [GitBook-Dokumentation](https://renewable-energy-design.gitbook.io/renewable-energy-design-docs/uebersicht/esp32-power-analyzer/)
 - [Spectrum Analyzer](docs/spectrum-analyzer.md)
 - [Migration und Archivierungsnachweis](docs/spectrum-analyzer-migration.md)
 
@@ -123,7 +125,7 @@ CAD-Dateien behalten ihre ursprünglichen Creative-Commons-Lizenzen und Urhebera
 
 ## GitBook-Quelle und Pflege
 
-Die [veröffentlichte Projektdokumentation](https://renewable-energy-design.gitbook.io/esp32-power-analyzer/) wird per GitSync aus
+Die [veröffentlichte Projektdokumentation](https://renewable-energy-design.gitbook.io/renewable-energy-design-docs/uebersicht/esp32-power-analyzer/) wird per GitSync aus
 `ChristophBellmann/power-analyzer` auf `main` gepflegt. Die Seitentexte liegen in
 [`docs/`](docs/README.md), das Inhaltsverzeichnis in
 [`docs/SUMMARY.md`](docs/SUMMARY.md). `.gitbook.yaml` und
