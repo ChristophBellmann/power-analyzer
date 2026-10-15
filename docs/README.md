@@ -49,7 +49,12 @@ Both firmware builds, their separate SPIFFS images and both Spectrum document
 regeneration workflows were verified on 2026-10-06. Hardware runtime measurements
 remain a separate validation step.
 
----
+## Independent project and documentation
 
-**Developed by Renewable Energy Design**  
-Engineering · Embedded Systems · Measurement · Energy · Automation
+Since 2026-10-15 this repository is maintained outside the Thinkthing
+superproject. Its canonical manual is the
+[standalone ESP32 Power Analyzer site](https://renewable-energy-design.gitbook.io/esp32-power-analyzer/),
+synchronized directly from this repository’s `main` branch and `docs/` folder.
+The shared REDesign documentation is no longer its publication entry point.
+The ESP-DSP submodule remains part of this repository and both firmware builds.
+Existing licenses and author attributions are unchanged.

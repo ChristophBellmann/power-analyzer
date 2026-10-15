@@ -16,3 +16,11 @@ This project is presented as part of the Renewable Energy Design engineering por
 Engineering · Embedded Systems · Energy · Automation
 
 The portfolio documents practical work across embedded systems, measurement technology, energy systems, automation and engineering software.
+
+## Documentation ownership
+
+Documentation is published independently at the
+[ESP32 Power Analyzer manual](https://renewable-energy-design.gitbook.io/esp32-power-analyzer/).
+GitSync reads `docs/` from this repository on `main`; `.gitbook.yaml` and
+`gitbook-docs.yaml` identify that same folder. Repository and documentation
+maintenance do not depend on Thinkthing or on the shared REDesign site.

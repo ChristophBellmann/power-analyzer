@@ -1,6 +1,6 @@
 # ESP32 Power Analyzer
 
-**Dokumentation:** [Handbuch](https://renewable-energy-design.gitbook.io/renewable-energy-design-docs/uebersicht/esp32-power-analyzer/) · [Alle REDesign-Handbücher](https://renewable-energy-design.gitbook.io/renewable-energy-design-docs/) · [redesign.network](https://redesign.network/)
+**Dokumentation:** [Handbuch](https://renewable-energy-design.gitbook.io/esp32-power-analyzer/)
 
 Ein ESP32-basiertes Messgerät zur Erfassung von harmonischen Oberwellen und Netzrückwirkungen in Echtzeit.
 
@@ -117,7 +117,7 @@ ESP-DSP-Fork als Submodul:
 git submodule update --init --recursive
 ```
 
-- [GitBook-Dokumentation](https://renewable-energy-design.gitbook.io/renewable-energy-design-docs/uebersicht/esp32-power-analyzer/)
+- [GitBook-Dokumentation](https://renewable-energy-design.gitbook.io/esp32-power-analyzer/)
 - [Spectrum Analyzer](docs/spectrum-analyzer.md)
 - [Migration und Archivierungsnachweis](docs/spectrum-analyzer-migration.md)
 
@@ -125,7 +125,7 @@ CAD-Dateien behalten ihre ursprünglichen Creative-Commons-Lizenzen und Urhebera
 
 ## GitBook-Quelle und Pflege
 
-Die [veröffentlichte Projektdokumentation](https://renewable-energy-design.gitbook.io/renewable-energy-design-docs/uebersicht/esp32-power-analyzer/) wird per GitSync aus
+Die [veröffentlichte Projektdokumentation](https://renewable-energy-design.gitbook.io/esp32-power-analyzer/) wird per GitSync aus
 `ChristophBellmann/power-analyzer` auf `main` gepflegt. Die Seitentexte liegen in
 [`docs/`](docs/README.md), das Inhaltsverzeichnis in
 [`docs/SUMMARY.md`](docs/SUMMARY.md). `.gitbook.yaml` und
@@ -136,7 +136,8 @@ Prüfständen oder Repository-Zuordnungen die betroffenen Seiten im selben
 Arbeitsgang aktualisieren und neue Seiten in `SUMMARY.md` eintragen. Nach
 Commit und Push auf `main` die Veröffentlichung in GitBook prüfen; GitSync
 läuft asynchron. Historische Ergebnisse und geplante Funktionen ausdrücklich
-kennzeichnen. In Thinkthing dokumentieren `docs/gitbooks.md` und
-`EXPERIENCE.md` den gemeinsamen Pflegeablauf;
-`python3 scripts/check_gitbook_sync.py --project power-analyzer`
-prüft dort den veröffentlichten Text gegen frische GitHub-Quellen.
+kennzeichnen. Dieses Projekt und sein Handbuch werden unabhängig vom
+Thinkthing-Superprojekt und der gemeinsamen REDesign-Dokumentation gepflegt.
+Die kanonische Veröffentlichung ist die oben verlinkte eigenständige GitBook-Site.
+Nach dem Push deren Inhaltsverzeichnis und betroffene Seiten mit den Quellen
+auf `main` vergleichen.
